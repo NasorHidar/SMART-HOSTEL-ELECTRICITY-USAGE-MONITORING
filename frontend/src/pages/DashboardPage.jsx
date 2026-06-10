@@ -1,11 +1,6 @@
-/**
- * src/pages/DashboardPage.jsx
- * Main user dashboard — real-time metrics, chart, and alerts.
- * Polls the backend every 5 seconds.
- */
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getDashboard } from '../api/api';
 import MetricCard  from '../components/MetricCard';
 import PowerChart  from '../components/PowerChart';
@@ -15,7 +10,7 @@ import AlertsPanel from '../components/AlertsPanel';
 const METRIC_DEFS = [
   {
     key:   'voltage',
-    label: 'Voltage',
+    labelKey: 'voltage',
     unit:  'V',
     icon:  '🔌',
     color: 'text-sky-400',
@@ -23,7 +18,7 @@ const METRIC_DEFS = [
   },
   {
     key:   'current',
-    label: 'Current',
+    labelKey: 'current',
     unit:  'A',
     icon:  '⚡',
     color: 'text-brand-400',
@@ -31,7 +26,7 @@ const METRIC_DEFS = [
   },
   {
     key:   'power',
-    label: 'Power',
+    labelKey: 'power',
     unit:  'W',
     icon:  '💡',
     color: 'text-amber-400',
@@ -39,7 +34,7 @@ const METRIC_DEFS = [
   },
   {
     key:   'dailyKWh',
-    label: "Today's Energy",
+    labelKey: 'todaysEnergy',
     unit:  'kWh',
     icon:  '📊',
     color: 'text-violet-400',
@@ -51,6 +46,7 @@ const POLL_INTERVAL_MS = 5000;
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
+  const { language, toggleLanguage, t, formatNumber, formatDate, calculateBill } = useLanguage();
 
   const [data, setData]             = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -116,6 +112,12 @@ const DashboardPage = () => {
     usagePercent > 50 ? 'bg-amber-400' :
     'bg-brand-500';
 
+  // ── Billing Calculations ──────────────────────────────────────────────────
+  const dailyBillDetails = calculateBill(data?.dailyKWh || 0);
+  const cumulativeBillDetails = calculateBill(latest?.energy || 0);
+  const demandCharge = 42.00; // 42 Tk per kW per month
+  const estimatedTotalBill = cumulativeBillDetails.total + demandCharge;
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Navigation ─────────────────────────────────────────────────────── */}
@@ -125,12 +127,12 @@ const DashboardPage = () => {
           <div className="flex items-center gap-3">
             <span className="text-2xl">⚡</span>
             <div>
-              <h1 className="font-bold text-slate-100 leading-tight">Smart Meter</h1>
-              <p className="text-slate-500 text-xs hidden sm:block">Hostel Electricity Monitor</p>
+              <h1 className="font-bold text-slate-100 leading-tight">{t('smartMeter')}</h1>
+              <p className="text-slate-500 text-xs hidden sm:block">{t('hostelElectricityMonitor')}</p>
             </div>
           </div>
 
-          {/* Live indicator + User + Logout */}
+          {/* Live indicator + Language Switch + User + Logout */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div
@@ -138,13 +140,23 @@ const DashboardPage = () => {
                 style={isLive ? { boxShadow: '0 0 8px rgba(72,190,132,0.7)' } : {}}
               />
               <span className={`text-xs font-medium ${isLive ? 'text-brand-400' : 'text-slate-500'}`}>
-                {isLive ? 'Live' : 'Offline'}
+                {isLive ? t('live') : t('offline')}
               </span>
             </div>
 
+            {/* Language Switch */}
+            <button
+              onClick={toggleLanguage}
+              className="text-xs text-slate-400 hover:text-white border border-surface-border
+                         hover:border-slate-500 rounded-lg px-2.5 py-2 transition-colors duration-150 flex items-center gap-1.5"
+            >
+              <span>🌐</span>
+              <span>{language === 'en' ? 'বাংলা' : 'English'}</span>
+            </button>
+
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm font-semibold text-slate-200">{user.student_name}</span>
-              <span className="text-xs text-slate-500">Room {user.room_number} · {user.esp_id}</span>
+              <span className="text-xs text-slate-500">{t('room')} {formatNumber(user.room_number)} · {user.esp_id}</span>
             </div>
 
             <button
@@ -153,7 +165,7 @@ const DashboardPage = () => {
               className="text-xs text-slate-400 hover:text-white border border-surface-border
                          hover:border-slate-500 rounded-lg px-3 py-2 transition-colors duration-150"
             >
-              Sign out
+              {t('signOut')}
             </button>
           </div>
         </div>
@@ -179,31 +191,31 @@ const DashboardPage = () => {
         {/* Section: Device Summary */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="animate-fade-in">
-            <p className="text-slate-400 text-sm">Welcome back,</p>
+            <p className="text-slate-400 text-sm">{t('welcomeBack')}</p>
             <h2 className="text-3xl font-bold text-slate-100">
               {user.student_name || user.esp_id}
             </h2>
             <p className="text-slate-500 text-sm mt-1">
-              Room {user.room_number} &nbsp;·&nbsp; Device{' '}
+              {t('room')} {formatNumber(user.room_number)} &nbsp;·&nbsp; {t('device')}{' '}
               <span className="font-mono text-brand-400">{user.esp_id}</span>
             </p>
           </div>
 
           <div className="text-right">
             <p className="text-xs text-slate-500">
-              Last updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : '—'}
+              {t('lastUpdated')}: {lastUpdate ? lastUpdate.toLocaleTimeString(language === 'bn' ? 'bn-BD' : 'en-US') : '—'}
             </p>
-            <p className="text-xs text-slate-600">Refreshes every 5 s</p>
+            <p className="text-xs text-slate-600">{t('refreshesEvery5s')}</p>
           </div>
         </div>
 
         {/* Section: Energy Budget Bar */}
         <div className="glass-card px-6 py-5 flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-300 font-medium">Daily Energy Budget</span>
+            <span className="text-slate-300 font-medium">{t('dailyEnergyBudget')}</span>
             <span className={`font-mono font-semibold ${usagePercent > 80 ? 'text-red-400' : 'text-brand-400'}`}>
-              {(data?.dailyKWh || 0).toFixed(3)} / {limitKWh} kWh
-              {' '}({usagePercent.toFixed(0)}%)
+              {formatNumber(data?.dailyKWh || 0, 3)} / {formatNumber(limitKWh)} kWh
+              {' '}({formatNumber(usagePercent, 0)}%)
             </span>
           </div>
           <div className="h-2.5 w-full rounded-full bg-surface-border overflow-hidden">
@@ -214,7 +226,7 @@ const DashboardPage = () => {
           </div>
           {usagePercent > 80 && (
             <p className="text-xs text-red-400 flex items-center gap-1.5">
-              <span>⚠️</span> You've used {usagePercent.toFixed(0)}% of your daily budget.
+              <span>⚠️</span> {t('usedBudgetWarning', { percent: formatNumber(usagePercent, 0) })}
             </p>
           )}
         </div>
@@ -234,7 +246,7 @@ const DashboardPage = () => {
             {METRIC_DEFS.map((m) => (
               <MetricCard
                 key={m.key}
-                label={m.label}
+                label={t(m.labelKey)}
                 value={metricsValues[m.key]}
                 unit={m.unit}
                 icon={m.icon}
@@ -244,6 +256,90 @@ const DashboardPage = () => {
             ))}
           </div>
         )}
+
+        {/* Section: Billing details */}
+        <div className="glass-card p-6 animate-fade-in flex flex-col gap-6" style={{ boxShadow: '0 0 30px rgba(56,189,248,0.05), 0 4px 24px rgba(0,0,0,0.4)' }}>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+              <span>💳</span> {t('billingDetails')}
+            </h3>
+            <p className="text-slate-400 text-xs mt-1">{t('billingDetailsSub')}</p>
+          </div>
+
+          {/* Billing Metric Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Today's Estimated Cost */}
+            <div className="border border-surface-border bg-slate-900/40 rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden">
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{t('todaysCost')}</span>
+              <span className="text-2xl font-bold text-brand-400 font-mono">৳ {formatNumber(dailyBillDetails.total, 2)}</span>
+              <span className="text-[10px] text-slate-500">
+                {formatNumber(data?.dailyKWh || 0, 3)} kWh consumed today
+              </span>
+            </div>
+
+            {/* Cumulative Bill (Energy Charge) */}
+            <div className="border border-surface-border bg-slate-900/40 rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden">
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{t('totalCharge')}</span>
+              <span className="text-2xl font-bold text-sky-400 font-mono">৳ {formatNumber(cumulativeBillDetails.total, 2)}</span>
+              <span className="text-[10px] text-slate-500">
+                Based on {formatNumber(latest?.energy || 0, 4)} kWh cumulative energy
+              </span>
+            </div>
+
+            {/* Estimated Total Bill (with Demand Charge) */}
+            <div className="border border-surface-border bg-brand-500/10 rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden">
+              <span className="text-xs font-medium text-slate-300 uppercase tracking-wider">{t('estimatedTotal')}</span>
+              <span className="text-2xl font-bold text-amber-400 font-mono">৳ {formatNumber(estimatedTotalBill, 2)}</span>
+              <span className="text-[10px] text-slate-400">
+                Includes {t('demandChargeLabel')}: ৳ {formatNumber(demandCharge, 2)}
+              </span>
+            </div>
+          </div>
+
+          {/* Slab Breakdown Table */}
+          {cumulativeBillDetails.breakdown && cumulativeBillDetails.breakdown.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <h4 className="text-sm font-semibold text-slate-300">{t('billingBreakdown')}</h4>
+              <div className="overflow-x-auto rounded-lg border border-surface-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-slate-400 bg-surface-card/40 border-b border-surface-border">
+                      <th className="p-3 font-medium">{t('slabName')}</th>
+                      <th className="p-3 font-medium text-right">{t('slabRate')}</th>
+                      <th className="p-3 font-medium text-right">{t('slabConsumed')}</th>
+                      <th className="p-3 font-medium text-right">{t('slabCharge')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cumulativeBillDetails.breakdown.map((b, idx) => (
+                      <tr key={idx} className="border-b border-surface-border/45 text-slate-300 hover:bg-surface-card/25 transition-colors">
+                        <td className="p-3 font-medium text-slate-400">
+                          {language === 'bn' ? b.slabNameBn : b.slabName}
+                        </td>
+                        <td className="p-3 text-right font-mono">৳ {formatNumber(b.rate, 2)}</td>
+                        <td className="p-3 text-right font-mono">{formatNumber(b.units, 3)}</td>
+                        <td className="p-3 text-right font-mono text-brand-400">৳ {formatNumber(b.cost, 2)}</td>
+                      </tr>
+                    ))}
+                    <tr className="bg-surface-card/30 font-bold text-slate-200">
+                      <td className="p-3">{t('totalCharge')}</td>
+                      <td className="p-3 text-right">—</td>
+                      <td className="p-3 text-right font-mono">{formatNumber(latest?.energy || 0, 3)}</td>
+                      <td className="p-3 text-right font-mono text-brand-400">৳ {formatNumber(cumulativeBillDetails.total, 2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+                <span>
+                  {cumulativeBillDetails.type === 'lifeline' ? t('lifelineAppliedText') : t('standardSlabsAppliedText')}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Section: Chart */}
         <div className="animate-fade-in">
@@ -258,12 +354,12 @@ const DashboardPage = () => {
         {/* Section: Latest Reading Details */}
         {latest && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Latest Reading Details</h3>
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">{t('latestReadingDetails')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-slate-500 border-b border-surface-border">
-                    {['Timestamp', 'Voltage', 'Current', 'Power', 'Cumulative Energy'].map((h) => (
+                    {[t('timestamp'), t('voltage'), t('current'), t('power'), t('cumulativeEnergy')].map((h) => (
                       <th key={h} className="pb-3 pr-6 font-medium">{h}</th>
                     ))}
                   </tr>
@@ -271,12 +367,12 @@ const DashboardPage = () => {
                 <tbody>
                   <tr className="text-slate-300 font-mono">
                     <td className="py-3 pr-6 text-slate-400 font-sans">
-                      {latest.timestamp ? new Date(latest.timestamp).toLocaleString() : '—'}
+                      {latest.timestamp ? formatDate(latest.timestamp) : '—'}
                     </td>
-                    <td className="py-3 pr-6 text-sky-400">{latest.voltage?.toFixed(1)} V</td>
-                    <td className="py-3 pr-6 text-brand-400">{latest.current?.toFixed(3)} A</td>
-                    <td className="py-3 pr-6 text-amber-400">{latest.power?.toFixed(1)} W</td>
-                    <td className="py-3 pr-6 text-violet-400">{latest.energy?.toFixed(5)} kWh</td>
+                    <td className="py-3 pr-6 text-sky-400">{formatNumber(latest.voltage, 1)} V</td>
+                    <td className="py-3 pr-6 text-brand-400">{formatNumber(latest.current, 3)} A</td>
+                    <td className="py-3 pr-6 text-amber-400">{formatNumber(latest.power, 1)} W</td>
+                    <td className="py-3 pr-6 text-violet-400">{formatNumber(latest.energy, 4)} kWh</td>
                   </tr>
                 </tbody>
               </table>
@@ -288,7 +384,7 @@ const DashboardPage = () => {
 
       {/* Footer */}
       <footer className="border-t border-surface-border py-4 text-center text-xs text-slate-600">
-        Smart Hostel Electricity Monitoring System &nbsp;·&nbsp; Powered by Gemini AI
+        {t('hostelElectricityMonitor')} &nbsp;·&nbsp; Powered by Gemini AI
       </footer>
     </div>
   );

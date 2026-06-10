@@ -1,8 +1,3 @@
-/**
- * src/components/PowerChart.jsx
- * 24-hour power consumption chart using Recharts.
- */
-
 import {
   AreaChart,
   Area,
@@ -13,9 +8,9 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { format } from 'date-fns';
+import { useLanguage } from '../context/LanguageContext';
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, t, formatNumber, language }) => {
   if (!active || !payload?.length) return null;
 
   // Get the original ISO timestamp from the data point (not the formatted label)
@@ -23,7 +18,14 @@ const CustomTooltip = ({ active, payload }) => {
   let timeStr = '';
   try {
     if (original?.timestamp) {
-      timeStr = format(new Date(original.timestamp), 'HH:mm, MMM d');
+      const date = new Date(original.timestamp);
+      timeStr = date.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        month: 'short',
+        day: 'numeric',
+        hour12: false
+      });
     }
   } catch {
     timeStr = original?.timeLabel || '';
@@ -33,11 +35,11 @@ const CustomTooltip = ({ active, payload }) => {
     <div className="glass-card px-4 py-3 text-sm border-brand-600/40">
       <p className="text-slate-400 mb-1">{timeStr}</p>
       <p className="text-brand-400 font-semibold font-mono">
-        {payload[0]?.value?.toFixed(1)} W
+        {formatNumber(payload[0]?.value, 1)} W
       </p>
       {payload[1] && (
         <p className="text-sky-400 font-mono text-xs">
-          {payload[1].value?.toFixed(1)} V
+          {formatNumber(payload[1].value, 1)} V
         </p>
       )}
     </div>
@@ -45,22 +47,35 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const PowerChart = ({ data = [] }) => {
+  const { language, t, formatNumber } = useLanguage();
+
   if (!data.length) {
     return (
       <div className="glass-card p-8 flex items-center justify-center h-64">
         <div className="text-center">
           <div className="text-4xl mb-3">📊</div>
-          <p className="text-slate-400">No chart data yet.</p>
-          <p className="text-slate-500 text-sm">Readings will appear once data is collected.</p>
+          <p className="text-slate-400">{t('noChartData')}</p>
+          <p className="text-slate-500 text-sm">{t('readingsAppearSoon')}</p>
         </div>
       </div>
     );
   }
 
-  const formattedData = data.map((d) => ({
-    ...d,
-    timeLabel: d.timestamp ? format(new Date(d.timestamp), 'HH:mm') : '',
-  }));
+  const formattedData = data.map((d) => {
+    let timeLabel = '';
+    if (d.timestamp) {
+      const date = new Date(d.timestamp);
+      timeLabel = date.toLocaleTimeString(language === 'bn' ? 'bn-BD' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+    return {
+      ...d,
+      timeLabel,
+    };
+  });
 
   const maxPower = Math.max(...data.map((d) => d.power || 0), 100);
 
@@ -69,17 +84,17 @@ const PowerChart = ({ data = [] }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-100">Power Consumption</h3>
-          <p className="text-slate-400 text-sm">Last 24 hours — hourly average</p>
+          <h3 className="text-lg font-semibold text-slate-100">{t('powerConsumption')}</h3>
+          <p className="text-slate-400 text-sm">{t('last24HoursAverage')}</p>
         </div>
         <div className="flex items-center gap-4 text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-6 rounded-full bg-brand-500 inline-block" />
-            Power (W)
+            {t('chartLegendPower')}
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-6 rounded-full bg-sky-500 inline-block" />
-            Voltage (V)
+            {t('chartLegendVoltage')}
           </span>
         </div>
       </div>
@@ -112,7 +127,7 @@ const PowerChart = ({ data = [] }) => {
             axisLine={{ stroke: '#334155' }}
             tickLine={false}
             domain={[0, Math.ceil(maxPower * 1.2)]}
-            tickFormatter={(v) => `${v}W`}
+            tickFormatter={(v) => `${formatNumber(v)}W`}
           />
 
           <YAxis
@@ -122,10 +137,10 @@ const PowerChart = ({ data = [] }) => {
             axisLine={{ stroke: '#334155' }}
             tickLine={false}
             domain={[180, 260]}
-            tickFormatter={(v) => `${v}V`}
+            tickFormatter={(v) => `${formatNumber(v)}V`}
           />
 
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip t={t} formatNumber={formatNumber} language={language} />} />
 
           {/* Anomaly threshold line at 800W */}
           <ReferenceLine
@@ -134,7 +149,7 @@ const PowerChart = ({ data = [] }) => {
             stroke="#f59e0b"
             strokeDasharray="6 3"
             strokeOpacity={0.6}
-            label={{ value: '⚠ 800W threshold', fill: '#f59e0b', fontSize: 10, position: 'right' }}
+            label={{ value: t('thresholdLabel'), fill: '#f59e0b', fontSize: 10, position: 'right' }}
           />
 
           <Area

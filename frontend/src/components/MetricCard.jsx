@@ -1,9 +1,5 @@
-/**
- * src/components/MetricCard.jsx
- * Animated card displaying a single electrical metric.
- */
-
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const MetricCard = ({
   label,
@@ -14,6 +10,8 @@ const MetricCard = ({
   glow  = 'rgba(37,162,101,0.25)',
   trend,
 }) => {
+  const { language, formatNumber } = useLanguage();
+
   // ✅ Use a React state key to re-trigger the CSS animation safely,
   //    instead of directly manipulating classList (which breaks during scroll).
   const [animKey, setAnimKey] = useState(0);
@@ -30,7 +28,7 @@ const MetricCard = ({
     value == null
       ? '—'
       : typeof value === 'number'
-        ? value.toFixed(unit === 'kWh' ? 4 : unit === 'A' ? 3 : 1)
+        ? formatNumber(value, unit === 'kWh' ? 4 : unit === 'A' ? 3 : 1)
         : value;
 
   return (
@@ -53,7 +51,7 @@ const MetricCard = ({
       {/* Optional trend indicator */}
       {trend != null && (
         <div className={`text-xs font-medium ${trend >= 0 ? 'text-red-400' : 'text-brand-400'}`}>
-          {trend >= 0 ? '▲' : '▼'} {Math.abs(trend).toFixed(1)}% vs last hour
+          {trend >= 0 ? '▲' : '▼'} {formatNumber(Math.abs(trend), 1)}% {language === 'bn' ? 'গত ঘণ্টার তুলনায়' : 'vs last hour'}
         </div>
       )}
 

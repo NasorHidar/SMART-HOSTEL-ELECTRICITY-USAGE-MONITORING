@@ -5,10 +5,12 @@
 
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const LoginPage = () => {
   const [espId, setEspId]   = useState('');
   const { login, loading, error } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,8 +18,23 @@ const LoginPage = () => {
     await login(espId.trim());
   };
 
+  const displayError = error === 'Login failed. Please try again.' ? t('loginFailed') : error;
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Language Toggle in Top-Right */}
+      <div className="absolute top-6 right-6 z-50">
+        <button
+          onClick={toggleLanguage}
+          className="glass-card px-4 py-2.5 text-xs font-semibold text-slate-300 hover:text-white
+                     hover:border-slate-500 rounded-xl transition-all duration-150 flex items-center gap-2 border border-surface-border/50"
+          style={{ boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2)' }}
+        >
+          <span>🌐</span>
+          <span>{language === 'en' ? 'বাংলা' : 'English'}</span>
+        </button>
+      </div>
+
       {/* Ambient background blobs */}
       <div
         className="absolute top-[-15%] left-[-10%] h-[500px] w-[500px] rounded-full opacity-10 blur-3xl pointer-events-none"
@@ -43,8 +60,8 @@ const LoginPage = () => {
             ⚡
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-slate-100">Smart Meter</h1>
-            <p className="text-slate-400 text-sm mt-1">Hostel Electricity Monitor</p>
+            <h1 className="text-2xl font-bold text-slate-100">{t('smartMeter')}</h1>
+            <p className="text-slate-400 text-sm mt-1">{t('hostelElectricityMonitor')}</p>
           </div>
         </div>
 
@@ -52,12 +69,12 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <label htmlFor="esp-id-input" className="text-sm font-medium text-slate-300">
-              Device ID
+              {t('deviceId')}
             </label>
             <input
               id="esp-id-input"
               type="text"
-              placeholder="e.g. ESP-2049"
+              placeholder={t('enterIdPlaceholder')}
               value={espId}
               onChange={(e) => setEspId(e.target.value.toUpperCase())}
               className="input-field font-mono tracking-widest text-lg text-center"
@@ -66,14 +83,14 @@ const LoginPage = () => {
               required
             />
             <p className="text-slate-500 text-xs text-center">
-              Enter the ID printed on your meter device
+              {t('enterIdHelp')}
             </p>
           </div>
 
           {/* Error message */}
           {error && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-              {error}
+              {displayError}
             </div>
           )}
 
@@ -89,17 +106,17 @@ const LoginPage = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                Signing in…
+                {t('signingIn')}
               </>
             ) : (
-              'View My Dashboard →'
+              t('viewDashboardBtn')
             )}
           </button>
         </form>
 
         {/* Footer note */}
         <p className="text-center text-xs text-slate-500">
-          Don't have an account? Contact your hostel admin to register your device.
+          {t('noAccountHelp')}
         </p>
       </div>
     </div>

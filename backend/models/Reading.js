@@ -45,6 +45,12 @@ const ReadingSchema = new mongoose.Schema(
   {
     // No Mongoose-level timestamps (we manage `timestamp` ourselves)
     timestamps: false,
+    // Enable MongoDB Time-Series optimization (requires MongoDB 5.0+)
+    timeseries: {
+      timeField: 'timestamp',
+      metaField: 'esp_id',
+      granularity: 'seconds',
+    },
   }
 );
 
