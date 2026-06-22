@@ -21,12 +21,12 @@
 #include <ArduinoJson.h>
 
 // ─── WiFi Configuration ────────────────────────────────────────────────────────
-const char* WIFI_SSID     = "Room--202";
-const char* WIFI_PASSWORD = "physics&iit";
+const char* WIFI_SSID     = "Shahriar's S24 Ultra";
+const char* WIFI_PASSWORD = "10101010";
 
 // ─── Backend Server Configuration ─────────────────────────────────────────────
-// Node.js backend — PC's Wi-Fi IP (192.168.0.106 from ipconfig)
-const char* SERVER_IP     = "192.168.0.106";
+// Node.js backend — PC's Wi-Fi IP (10.97.12.224 from ipconfig)
+const char* SERVER_IP     = "10.97.12.224";
 const int   SERVER_PORT   = 5000;
 const char* ENDPOINT      = "/api/readings";
 
@@ -100,6 +100,8 @@ int postReading(float voltage, float current, float power, float energy) {
   // Build URL
   char url[128];
   snprintf(url, sizeof(url), "http://%s:%d%s", SERVER_IP, SERVER_PORT, ENDPOINT);
+
+  Serial.printf("[HTTP] Posting to: %s\n", url);
 
   // Build JSON payload
   StaticJsonDocument<256> doc;
