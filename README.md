@@ -15,6 +15,7 @@ A professional full-stack IoT application that monitors electricity usage in hos
 *   **Gemini AI Anomaly Detection:** Cron job checks active devices every 5 minutes using **Gemini 2.0 Flash** to identify prohibited resistive loads (kettles, rice cookers, heaters) and flags critical power spikes.
 *   **MongoDB Time-Series Optimization:** Uses MongoDB Time-Series collections (`timeseries` schema config) for fast, optimized, time-ordered reads/writes.
 *   **Vite React Charting:** Interactive, responsive 24-hour power and voltage Area Charts rendered in localized language numerals.
+*   **SSLCommerz Bill Payment System:** Integrated online payment system supporting Visa, MasterCard, American Express, bKash, Nagad, Rocket, and Upay. Features a configurable gateway service layer, real-time transaction verification, billing history with search/pagination, and receipt export to PDF.
 *   **CI/CD Pipeline:** Integrated GitHub Actions workflow for static frontend deployment to GitHub Pages on merges to `main`.
 
 ---
@@ -61,24 +62,30 @@ Smart Meter/
 │   ├── config/db.js            # MongoDB Mongoose database connector
 │   ├── controllers/
 │   │   ├── authController.js   # JWT generation and login/register handlers
+│   │   ├── paymentController.js# Bill payments, webhooks, and history handlers
 │   │   └── readingController.js# Telemetry ingestion, aggregation & dashboard API
 │   ├── middleware/
 │   │   └── authMiddleware.js   # JWT verification middleware
 │   ├── models/
 │   │   ├── Alert.js            # Mongoose model for AI-detected anomalies
+│   │   ├── Payment.js          # Mongoose model for billing transactions
 │   │   ├── Reading.js          # Mongoose model optimized for time-series readings
 │   │   └── User.js             # Mongoose model representing residents & limits
 │   ├── routes/
 │   │   ├── authRoutes.js       # Express routes for authentication
+│   │   ├── paymentRoutes.js    # Express routes for payment verification and webhooks
 │   │   └── readingRoutes.js    # Express routes for telemetry & alerts
 │   ├── services/
-│   │   └── geminiService.js    # Gemini 2.0 Flash Cron Job anomaly analyzer
+│   │   ├── geminiService.js    # Gemini 2.0 Flash Cron Job anomaly analyzer
+│   │   └── paymentService.js   # SSLCommerz Payment Gateway service layer
 │   ├── .env                    # Backend environmental parameters (JWT, API keys)
 │   ├── package.json            # Node backend dependencies
 │   └── server.js               # Main Express entry point
 └── frontend/
     ├── src/
-    │   ├── api/api.js          # Axios API client with JWT interceptors
+    │   ├── api/
+    │   │   ├── api.js          # Axios API client with JWT interceptors
+    │   │   └── paymentApi.js   # Axios endpoints for bill payments
     │   ├── components/
     │   │   ├── AlertsPanel.jsx # AI warnings and dismissible notifications panel
     │   │   ├── MetricCard.jsx  # Glowing and animated telemetry metrics card
@@ -88,7 +95,11 @@ Smart Meter/
     │   │   └── LanguageContext.jsx # Bilingual translations state and math tools
     │   ├── pages/
     │   │   ├── DashboardPage.jsx # Core telemetry & billing control dashboard
-    │   │   └── LoginPage.jsx   # Clean login authentication card
+    │   │   ├── LoginPage.jsx   # Clean login authentication card
+    │   │   ├── PaymentPage.jsx # Payment initiation & method selector card
+    │   │   ├── PaymentHistory.jsx # Searchable & exportable payment history table
+    │   │   ├── PaymentSuccess.jsx # Payment verification & digital receipt modal
+    │   │   └── PaymentFailed.jsx # Payment cancel & failure status page
     │   ├── App.jsx             # Main routing shell
     │   ├── index.css           # Global custom typography and glassmorphism styling
     │   └── main.jsx            # React root renderer
@@ -135,6 +146,10 @@ The ESP32 firmware reads raw analog data and converts it into RMS values:
     JWT_EXPIRES_IN=7d
     GEMINI_API_KEY=your_google_gemini_api_key
     ANOMALY_POWER_THRESHOLD=1000 # Trigger analysis above 1000W
+    SSL_STORE_ID=your_sslcommerz_store_id
+    SSL_STORE_PASSWORD=your_sslcommerz_store_password
+    SSL_IS_LIVE=false
+    FRONTEND_URL=http://localhost:5173
     ```
 3.  Install dependencies and start the local development server:
     ```bash
@@ -190,6 +205,11 @@ curl -X POST http://localhost:5000/api/register \
 | **POST** | `/api/readings` | ESP32 Client | Ingests real-time metrics sent from micro-controller |
 | **GET** | `/api/dashboard/:esp_id`| Bearer JWT | Returns telemetry history, daily totals, AI alerts, and billing info |
 | **PATCH**| `/api/alerts/:id/acknowledge`| Bearer JWT | Dismisses/acknowledges an active anomaly alert |
+| **GET** | `/api/payments/current-bill/:esp_id` | Bearer JWT | Calculates and returns billing month summary and payment status |
+| **POST** | `/api/payments/create`  | Bearer JWT | Initiates SSLCommerz payment session and returns redirect URL |
+| **POST** | `/api/payments/verify`  | Bearer JWT | Manually verifies payment status with SSLCommerz Gateway API |
+| **GET** | `/api/payments/history/:esp_id` | Bearer JWT | Returns paginated payment records (with search & PDF export options) |
+| **POST** | `/api/payments/webhook` | Public | Webhook handling success, failure, or cancellation from SSLCommerz |
 | **GET** | `/health` | Public | Returns API health status and timestamp |
 
 ---

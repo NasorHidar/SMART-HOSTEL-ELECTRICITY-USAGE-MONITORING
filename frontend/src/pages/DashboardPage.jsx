@@ -44,7 +44,7 @@ const METRIC_DEFS = [
 
 const POLL_INTERVAL_MS = 5000;
 
-const DashboardPage = () => {
+const DashboardPage = ({ onNavigate }) => {
   const { user, logout } = useAuth();
   const { language, toggleLanguage, t, formatNumber, formatDate, calculateBill } = useLanguage();
 
@@ -160,6 +160,17 @@ const DashboardPage = () => {
             </div>
 
             <button
+              id="pay-bill-btn"
+              onClick={() => onNavigate('payment')}
+              className="text-xs font-semibold text-white border border-brand-500/50
+                         bg-brand-500/20 hover:bg-brand-500/40
+                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5"
+            >
+              <span>💳</span>
+              <span>{t('payBill')}</span>
+            </button>
+
+            <button
               id="logout-btn"
               onClick={logout}
               className="text-xs text-slate-400 hover:text-white border border-surface-border
@@ -259,11 +270,33 @@ const DashboardPage = () => {
 
         {/* Section: Billing details */}
         <div className="glass-card p-6 animate-fade-in flex flex-col gap-6" style={{ boxShadow: '0 0 30px rgba(56,189,248,0.05), 0 4px 24px rgba(0,0,0,0.4)' }}>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-              <span>💳</span> {t('billingDetails')}
-            </h3>
-            <p className="text-slate-400 text-xs mt-1">{t('billingDetailsSub')}</p>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                <span>💳</span> {t('billingDetails')}
+              </h3>
+              <p className="text-slate-400 text-xs mt-1">{t('billingDetailsSub')}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                id="pay-bill-billing-btn"
+                onClick={() => onNavigate('payment')}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-brand-500/40
+                           bg-brand-500/15 text-brand-300 hover:bg-brand-500/25 hover:border-brand-500/60
+                           transition-all duration-200 text-sm font-semibold"
+              >
+                <span>💳</span> {t('payBill')}
+              </button>
+              <button
+                id="view-history-billing-btn"
+                onClick={() => onNavigate('history')}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-surface-border
+                           text-slate-400 hover:text-white hover:border-slate-500
+                           transition-all duration-200 text-sm"
+              >
+                <span>📜</span> {t('paymentHistory')}
+              </button>
+            </div>
           </div>
 
           {/* Billing Metric Cards */}

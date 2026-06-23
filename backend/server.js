@@ -9,6 +9,7 @@ const cors    = require('cors');
 const connectDB = require('./config/db');
 const authRoutes    = require('./routes/authRoutes');
 const readingRoutes = require('./routes/readingRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const { startAnomalyDetectionCron } = require('./services/geminiService');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
@@ -57,6 +58,7 @@ app.get('/health', (_req, res) => {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api', authRoutes);
 app.use('/api', readingRoutes);
+app.use('/api', paymentRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
