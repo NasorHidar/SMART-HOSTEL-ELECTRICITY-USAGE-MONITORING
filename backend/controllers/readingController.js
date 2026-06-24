@@ -8,6 +8,7 @@
 const Reading = require('../models/Reading');
 const Alert   = require('../models/Alert');
 const User    = require('../models/User');
+const { calculateEnergyCharge } = require('../services/paymentService');
 
 // ─── POST /api/readings ───────────────────────────────────────────────────────
 /**
@@ -19,6 +20,13 @@ const User    = require('../models/User');
 const saveReading = async (req, res) => {
   try {
     const { esp_id, voltage, current, power, energy } = req.body;
+
+    // Check device secret header
+    const deviceSecret = req.headers['x-device-secret'];
+    if (deviceSecret !== process.env.DEVICE_SECRET) {
+      console.warn(`[Readings] Unauthorized ingestion attempt for esp_id: ${esp_id}`);
+      return res.status(401).json({ message: 'Unauthorized device' });
+    }
 
     // Basic validation
     if (!esp_id || voltage == null || current == null || power == null || energy == null) {
@@ -53,6 +61,11 @@ const saveReading = async (req, res) => {
 const getDashboard = async (req, res) => {
   try {
     const esp_id = req.params.esp_id.trim().toUpperCase();
+
+    // Verify device belongs to the authenticated user
+    if (req.user.esp_id !== esp_id) {
+      return res.status(403).json({ message: 'Access denied — device mismatch' });
+    }
 
     // ── Latest reading ────────────────────────────────────────────────────────
     const latest = await Reading.findOne({ esp_id })
@@ -113,6 +126,10 @@ const getDashboard = async (req, res) => {
         ? Math.max(0, lastToday.energy - firstToday.energy)
         : 0;
 
+    // Calculate server-side bill estimations
+    const dailyBill = calculateEnergyCharge(dailyKWh).energyCharge;
+    const cumulativeBill = calculateEnergyCharge(latest?.energy || 0).energyCharge;
+
     // ── Alerts ────────────────────────────────────────────────────────────────
     const alerts = await Alert.find({ esp_id, acknowledged: false })
       .sort({ createdAt: -1 })
@@ -125,6 +142,8 @@ const getDashboard = async (req, res) => {
     res.status(200).json({
       latest,
       dailyKWh: parseFloat(dailyKWh.toFixed(4)),
+      dailyBill,
+      cumulativeBill,
       chartData,
       alerts,
       user: user
@@ -144,12 +163,17 @@ const getDashboard = async (req, res) => {
 // ─── PATCH /api/alerts/:id/acknowledge ───────────────────────────────────────
 const acknowledgeAlert = async (req, res) => {
   try {
-    const alert = await Alert.findByIdAndUpdate(
-      req.params.id,
-      { acknowledged: true },
-      { new: true }
-    );
+    const alert = await Alert.findById(req.params.id);
     if (!alert) return res.status(404).json({ message: 'Alert not found' });
+
+    // Verify ownership
+    if (alert.esp_id !== req.user.esp_id) {
+      return res.status(403).json({ message: 'Access denied — device mismatch' });
+    }
+
+    alert.acknowledged = true;
+    await alert.save();
+
     res.json({ message: 'Alert acknowledged', alert });
   } catch (error) {
     res.status(500).json({ message: 'Failed to acknowledge alert' });

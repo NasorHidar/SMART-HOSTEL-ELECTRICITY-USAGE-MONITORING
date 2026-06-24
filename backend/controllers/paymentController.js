@@ -249,9 +249,10 @@ const webhookHandler = async (req, res) => {
       let validation;
       try {
         validation = await verifyTransaction(body.val_id || transactionId);
-      } catch (_) {
-        // If validation call fails, still mark based on gateway post
-        validation = { status: 'VALID' };
+      } catch (err) {
+        console.error('[Payment] Server-to-server verification failed:', err);
+        // Secure default: if validation fails, transaction is marked as FAILED
+        validation = { status: 'FAILED' };
       }
 
       const isValid =

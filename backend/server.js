@@ -10,7 +10,9 @@ const connectDB = require('./config/db');
 const authRoutes    = require('./routes/authRoutes');
 const readingRoutes = require('./routes/readingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const carbonRoutes  = require('./routes/carbonRoutes');
 const { startAnomalyDetectionCron } = require('./services/geminiService');
+const { startSustainabilityInsightCron } = require('./services/sustainabilityInsightService');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
 connectDB();
@@ -59,6 +61,7 @@ app.get('/health', (_req, res) => {
 app.use('/api', authRoutes);
 app.use('/api', readingRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', carbonRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -82,6 +85,9 @@ app.listen(PORT, () => {
 
   // Start Gemini anomaly detection cron (every 5 minutes)
   startAnomalyDetectionCron();
+
+  // Start daily sustainability insight cron (every day at 23:55)
+  startSustainabilityInsightCron();
 });
 
 module.exports = app;
