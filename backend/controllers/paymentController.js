@@ -12,6 +12,7 @@
  *   POST   /api/payments/webhook             — SSLCommerz gateway callback
  */
 
+const crypto  = require('crypto'); // C4 FIX: needed for webhook HMAC verification
 const Payment = require('../models/Payment');
 const User    = require('../models/User');
 const {
@@ -225,8 +226,12 @@ const verifyPayment = async (req, res) => {
  * Validates the transaction server-to-server and updates payment status,
  * then redirects the user's browser to the appropriate frontend page.
  *
+ * SECURITY FIX (C4): Now verifies SSLCommerz HMAC signature before processing
+ * success callbacks. Without this, an attacker could forge a POST and mark
+ * any bill as paid without actually paying.
+ *
  * Query params: ?status=success|failed|cancelled
- * Body (from SSLCommerz): { tran_id, val_id, card_type, amount, ... }
+ * Body (from SSLCommerz): { tran_id, val_id, card_type, verify_sign, verify_key, ... }
  */
 const webhookHandler = async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -242,6 +247,15 @@ const webhookHandler = async (req, res) => {
     const payment = await Payment.findOne({ transactionId });
     if (!payment) {
       return res.redirect(`${frontendUrl}?status=failed&reason=not_found`);
+    }
+
+    // ── C4 FIX: Verify SSLCommerz HMAC signature on success callbacks ──────
+    if (status === 'success' && !verifyWebhookSignature(body)) {
+      console.error(`[Payment] ⚠️ Webhook signature verification FAILED for tran_id=${transactionId} — possible forgery attempt`);
+      payment.paymentStatus   = 'failed';
+      payment.gatewayResponse = { ...body, _rejected: 'invalid_signature' };
+      await payment.save();
+      return res.redirect(`${frontendUrl}?status=failed&reason=invalid_signature`);
     }
 
     if (status === 'success') {
@@ -309,14 +323,20 @@ const getPaymentHistory = async (req, res) => {
     const skip  = (page - 1) * limit;
     const search = req.query.search?.trim() || '';
 
+    // H2 FIX: Escape regex metacharacters to prevent ReDoS attacks.
+    // Without this, a malicious pattern like "(a+)+$" causes catastrophic
+    // backtracking that freezes the MongoDB query thread.
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Build query filter
     const filter = { esp_id };
     if (search) {
+      const safeSearch = escapeRegex(search);
       filter.$or = [
-        { transactionId:  { $regex: search, $options: 'i' } },
-        { paymentMethod:  { $regex: search, $options: 'i' } },
-        { billingMonth:   { $regex: search, $options: 'i' } },
-        { paymentStatus:  { $regex: search, $options: 'i' } },
+        { transactionId:  { $regex: safeSearch, $options: 'i' } },
+        { paymentMethod:  { $regex: safeSearch, $options: 'i' } },
+        { billingMonth:   { $regex: safeSearch, $options: 'i' } },
+        { paymentStatus:  { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -344,6 +364,61 @@ const getPaymentHistory = async (req, res) => {
   } catch (error) {
     console.error('[Payment] getPaymentHistory error:', error);
     res.status(500).json({ message: 'Failed to fetch payment history' });
+  }
+};
+
+// ─── C4 FIX: Verify SSLCommerz webhook HMAC signature ────────────────────────
+/**
+ * SSLCommerz sends `verify_sign` (MD5 hash) and `verify_key` (comma-separated
+ * list of field names used to compute the hash) in the POST body.
+ *
+ * Verification:
+ *   1. Split verify_key into individual field names
+ *   2. Sort them alphabetically
+ *   3. Concatenate as key=value& pairs
+ *   4. Append the store password
+ *   5. MD5 hash and compare with verify_sign
+ *
+ * Returns true if the signature is valid, false otherwise.
+ * Also returns true if verify_sign/verify_key are missing (sandbox mode may
+ * not send them) — the server-to-server validation call acts as a fallback.
+ */
+const verifyWebhookSignature = (body) => {
+  const { verify_sign, verify_key } = body || {};
+
+  // If the gateway didn't send signature fields (sandbox mode), allow through
+  // — the server-to-server verifyTransaction() call is the secondary check
+  if (!verify_sign || !verify_key) {
+    console.warn('[Payment] Webhook: verify_sign/verify_key missing — skipping HMAC (sandbox mode?)');
+    return true;
+  }
+
+  const storePassword = process.env.SSL_STORE_PASSWORD;
+  if (!storePassword) {
+    console.error('[Payment] Cannot verify webhook — SSL_STORE_PASSWORD not set');
+    return false;
+  }
+
+  try {
+    // Build the hash string from the fields specified in verify_key
+    const keys = verify_key.split(',').sort();
+    const hashString = keys
+      .map((key) => `${key}=${body[key] || ''}`)
+      .join('&');
+
+    const expectedHash = crypto
+      .createHash('md5')
+      .update(hashString + storePassword)
+      .digest('hex');
+
+    const isValid = expectedHash === verify_sign;
+    if (!isValid) {
+      console.error(`[Payment] HMAC mismatch: expected=${expectedHash}, received=${verify_sign}`);
+    }
+    return isValid;
+  } catch (err) {
+    console.error('[Payment] Signature verification error:', err.message);
+    return false;
   }
 };
 

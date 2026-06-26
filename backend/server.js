@@ -10,7 +10,8 @@ const requiredEnv = [
   'JWT_SECRET',
   'SSL_STORE_ID',
   'SSL_STORE_PASSWORD',
-  'DEVICE_SECRET'
+  'DEVICE_SECRET',
+  'ADMIN_SECRET',    // C3 FIX: required for registration endpoint protection
 ];
 
 const missingEnv = requiredEnv.filter((envVar) => !process.env[envVar]);

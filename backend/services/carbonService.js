@@ -228,6 +228,9 @@ const getDailyTrend = async (esp_id, days = 30) => {
         timestamp: { $gte: from },
       },
     },
+    // H4 FIX: $first/$last only give correct results when the input is sorted.
+    // Without this, they return arbitrary values — producing wrong kWh deltas.
+    { $sort: { timestamp: 1 } },
     {
       $group: {
         _id: {
@@ -266,38 +269,74 @@ const getDailyTrend = async (esp_id, days = 30) => {
 // ─── Hostel Leaderboard ───────────────────────────────────────────────────────
 
 /**
+ * H3 FIX: Replaced N+1 query pattern with a single aggregation pipeline.
+ *
+ * Old approach: For each user, called getEnergyDelta() (2 queries each) = 2N+1 total.
+ * New approach: 1 aggregation + 1 User lookup = 2 queries total, regardless of user count.
+ *
  * Get top 10 rooms ranked by lowest monthly kWh (most energy-efficient first).
  * Returns room_number, monthly kWh, monthly CO₂, and sustainability score.
  * Student names are omitted for privacy.
  */
 const getLeaderboard = async () => {
-  const users = await User.find().select('esp_id room_number').lean();
-  if (users.length === 0) return [];
-
   const from = startOfMonth();
-  const to   = new Date();
 
-  const entries = await Promise.all(
-    users.map(async (u) => {
-      const kwh  = await getEnergyDelta(u.esp_id, from, to);
-      const co2  = kwhToCO2(kwh);
-      const { score, label, tier } = getSustainabilityScore(kwh);
-      return {
-        esp_id:      u.esp_id,
-        room_number: u.room_number,
-        monthlyKWh:  parseFloat(kwh.toFixed(4)),
-        monthlyCO2:  co2,
-        score,
-        label,
-        tier,
-      };
-    })
+  // Single aggregation: get first/last energy per device for the current month
+  const results = await Reading.aggregate([
+    { $match: { timestamp: { $gte: from } } },
+    // Sort so $first/$last are deterministic (same fix as H4)
+    { $sort: { esp_id: 1, timestamp: 1 } },
+    {
+      $group: {
+        _id: '$esp_id',
+        firstEnergy: { $first: '$energy' },
+        lastEnergy:  { $last: '$energy' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        esp_id: '$_id',
+        monthlyKWh: {
+          $round: [
+            { $max: [0, { $subtract: ['$lastEnergy', '$firstEnergy'] }] },
+            4,
+          ],
+        },
+      },
+    },
+    { $sort: { monthlyKWh: 1 } },
+    { $limit: 10 },
+  ]);
+
+  if (results.length === 0) return [];
+
+  // One enrichment query for room numbers (instead of N individual lookups)
+  const users = await User.find({
+    esp_id: { $in: results.map((r) => r.esp_id) },
+  })
+    .select('esp_id room_number')
+    .lean();
+
+  const userMap = Object.fromEntries(
+    users.map((u) => [u.esp_id, u.room_number])
   );
 
-  // Sort by monthly kWh ascending (lowest usage = most efficient = rank 1)
-  return entries
-    .sort((a, b) => a.monthlyKWh - b.monthlyKWh)
-    .slice(0, 10);
+  const factor = getEmissionFactor();
+
+  return results.map((r) => {
+    const co2 = kwhToCO2(r.monthlyKWh);
+    const { score, label, tier } = getSustainabilityScore(r.monthlyKWh);
+    return {
+      esp_id:      r.esp_id,
+      room_number: userMap[r.esp_id] || 'Unknown',
+      monthlyKWh:  r.monthlyKWh,
+      monthlyCO2:  co2,
+      score,
+      label,
+      tier,
+    };
+  });
 };
 
 // ─── Environmental Equivalents ────────────────────────────────────────────────

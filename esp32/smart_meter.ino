@@ -21,12 +21,19 @@
 #include <ArduinoJson.h>
 
 // ─── WiFi Configuration ────────────────────────────────────────────────────────
-const char* WIFI_SSID     = "Shahriar's S24 Ultra";
-const char* WIFI_PASSWORD = "10101010";
+// ⚠️  SECURITY WARNING (C2): WiFi credentials are hardcoded for development only.
+//     For production, provision via ESP32 NVS (Preferences library) or WiFiManager:
+//       #include <Preferences.h>
+//       Preferences prefs;
+//       prefs.begin("wifi", true);
+//       String ssid = prefs.getString("ssid", "");
+//       String pass = prefs.getString("pass", "");
+const char* WIFI_SSID     = "Tajuddin Guest Room";
+const char* WIFI_PASSWORD = "12345678";
 
 // ─── Backend Server Configuration ─────────────────────────────────────────────
 // Use a hostname (e.g. "smart-hostel.local") or static IP for production
-const char* SERVER_IP     = "10.97.12.224";
+const char* SERVER_IP     = "192.168.0.124";
 const int   SERVER_PORT   = 5000;
 const char* ENDPOINT      = "/api/readings";
 
@@ -34,7 +41,14 @@ const char* ENDPOINT      = "/api/readings";
 const char* ESP_ID        = "ESP-2049";
 
 // ─── Device Telemetry Secret ──────────────────────────────────────────────────
-// Must match DEVICE_SECRET in backend/.env
+// ⚠️  SECURITY WARNING (C2): This secret is hardcoded for development only.
+//     Must match DEVICE_SECRET in backend/.env.
+//     For production, provision via ESP32 NVS during initial device setup:
+//       #include <Preferences.h>
+//       Preferences prefs;
+//       prefs.begin("config", true);
+//       String secret = prefs.getString("device_secret", "");
+//     This prevents secrets from leaking if the firmware source is published.
 const char* DEVICE_SECRET = "SmartHostelDeviceSecret123";
 
 // ─── LCD (I2C address 0x27) ────────────────────────────────────────────────────

@@ -80,16 +80,29 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
+    // H6 FIX: Log real error internally but send generic message to client
+    // to prevent leaking stack traces, DB strings, or Mongoose internals
     console.error('[Auth] Login error:', error);
-    res.status(500).json({ message: `Server error during login: ${error.message}` });
+    res.status(500).json({ message: 'An internal error occurred during login. Please try again.' });
   }
 };
 
 /**
  * POST /api/register  (Admin use — seed initial users)
  * Body: { "esp_id": "ESP-2049", "student_name": "Alice", "room_number": "101" }
+ * Header: X-Admin-Secret — must match ADMIN_SECRET env var
+ *
+ * SECURITY FIX (C3): This endpoint was previously unprotected.
+ * Now requires a valid admin secret header to prevent unauthorized registration.
  */
 const register = async (req, res) => {
+  // ── C3 FIX: Verify admin secret before allowing registration ─────────────
+  const adminSecret = req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
+    console.warn('[Auth] Registration blocked: invalid or missing X-Admin-Secret header');
+    return res.status(403).json({ message: 'Forbidden — valid admin secret required' });
+  }
+
   const { esp_id, student_name, room_number, daily_limit_kwh, password } = req.body;
   console.log(`[Auth] Register request received for esp_id: "${esp_id}"`);
 
@@ -136,8 +149,9 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
+    // H6 FIX: Don't expose error.message to client
     console.error('[Auth] Register error:', error);
-    res.status(500).json({ message: `Server error during registration: ${error.message}` });
+    res.status(500).json({ message: 'An internal error occurred during registration. Please try again.' });
   }
 };
 
@@ -161,7 +175,8 @@ const getDevUsers = async (req, res) => {
   }
 
   try {
-    let users = await User.find({});
+    // H5 FIX: Exclude password hashes and __v from the response
+    let users = await User.find({}).select('-password -__v');
     console.log(`[Dev] Current registered users count: ${users.length}`);
 
     if (users.length === 0) {
@@ -173,14 +188,17 @@ const getDevUsers = async (req, res) => {
         password:        'ESP-2049',
         daily_limit_kwh: 5,
       });
-      users = [seedUser];
+      // Return the seeded user without password field
+      const { password, __v, ...safeUser } = seedUser.toObject();
+      users = [safeUser];
       console.log('[Dev] Auto-seeding complete.');
     }
 
     res.status(200).json(users);
   } catch (error) {
+    // H6 FIX: Don't expose error.message to client
     console.error('[Dev] Dev utility users error:', error);
-    res.status(500).json({ message: `Server error in dev utility: ${error.message}` });
+    res.status(500).json({ message: 'An internal error occurred. Please try again.' });
   }
 };
 

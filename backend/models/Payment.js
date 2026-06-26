@@ -97,4 +97,16 @@ const PaymentSchema = new mongoose.Schema(
 PaymentSchema.index({ esp_id: 1, billingMonth: 1 });
 PaymentSchema.index({ esp_id: 1, paymentStatus: 1 });
 
+// H1 FIX: Partial unique index to prevent double-payment race conditions.
+// Two concurrent requests can both pass the findOne check and both create 'pending'
+// records. This index ensures only ONE 'paid' record can exist per device per month.
+// Failed/pending duplicates are still allowed (user may retry after a failure).
+PaymentSchema.index(
+  { esp_id: 1, billingMonth: 1, paymentStatus: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { paymentStatus: 'paid' },
+  }
+);
+
 module.exports = mongoose.model('Payment', PaymentSchema);
