@@ -35,8 +35,8 @@ api.interceptors.response.use(
 );
 
 // ─── Auth ──────────────────────────────────────────────────────────────────────
-export const loginByEspId = (esp_id) =>
-  api.post('/login', { esp_id });
+export const loginByEspId = (esp_id, password) =>
+  api.post('/login', { esp_id, password });
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────────
 export const getDashboard = (esp_id) =>

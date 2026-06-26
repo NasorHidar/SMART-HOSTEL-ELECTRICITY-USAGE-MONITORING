@@ -160,6 +160,17 @@ const DashboardPage = ({ onNavigate }) => {
             </div>
 
             <button
+              id="carbon-dashboard-btn"
+              onClick={() => onNavigate('carbon')}
+              className="text-xs font-semibold text-white border border-emerald-500/50
+                         bg-emerald-500/20 hover:bg-emerald-500/40
+                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5"
+            >
+              <span>🌿</span>
+              <span className="hidden sm:inline">{t('viewCarbonDashboard')}</span>
+            </button>
+
+            <button
               id="pay-bill-btn"
               onClick={() => onNavigate('payment')}
               className="text-xs font-semibold text-white border border-brand-500/50

@@ -1,6 +1,6 @@
 /**
  * src/pages/LoginPage.jsx
- * Clean, premium login screen — esp_id only authentication.
+ * Clean, premium login screen — esp_id + password authentication.
  */
 
 import { useState } from 'react';
@@ -8,14 +8,19 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const LoginPage = () => {
-  const [espId, setEspId]   = useState('');
+  const [espId, setEspId]       = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw]     = useState(false);
   const { login, loading, error } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!espId.trim()) return;
-    await login(espId.trim());
+    const cleanId = espId.trim();
+    if (!cleanId || !password) return;
+    console.log(`[LoginPage] Submitting login request for: "${cleanId}"`);
+    const result = await login(cleanId, password);
+    console.log(`[LoginPage] Login result received:`, result);
   };
 
   const displayError = error === 'Login failed. Please try again.' ? t('loginFailed') : error;
@@ -67,6 +72,7 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Device ID Field */}
           <div className="flex flex-col gap-2">
             <label htmlFor="esp-id-input" className="text-sm font-medium text-slate-300">
               {t('deviceId')}
@@ -87,6 +93,33 @@ const LoginPage = () => {
             </p>
           </div>
 
+          {/* Password Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password-input" className="text-sm font-medium text-slate-300">
+              {t('password')}
+            </label>
+            <div className="relative">
+              <input
+                id="password-input"
+                type={showPw ? 'text' : 'password'}
+                placeholder={t('enterPasswordPlaceholder')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field text-center w-full pr-12"
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
+                tabIndex={-1}
+              >
+                {showPw ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
+
           {/* Error message */}
           {error && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -97,7 +130,7 @@ const LoginPage = () => {
           <button
             id="login-btn"
             type="submit"
-            disabled={loading || !espId.trim()}
+            disabled={loading || !espId.trim() || !password}
             className="btn-brand mt-2 flex items-center justify-center gap-2"
           >
             {loading ? (

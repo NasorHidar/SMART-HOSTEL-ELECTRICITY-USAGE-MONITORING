@@ -129,8 +129,11 @@ const generateTransactionId = () =>
  * @returns {Promise<{ url: string, sessionKey: string }>}
  */
 const initPaymentSession = async ({ transactionId, amount, userInfo, billingMonth }) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const backendUrl  = `http://localhost:${process.env.PORT || 5000}`;
+  if (!process.env.SSL_STORE_ID || !process.env.SSL_STORE_PASSWORD) {
+    throw new Error('Payment gateway is not configured correctly.');
+  }
+
+  const backendUrl  = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 
   const sslData = {
     total_amount:   amount,
@@ -178,12 +181,17 @@ const initPaymentSession = async ({ transactionId, amount, userInfo, billingMont
     IS_LIVE
   );
 
-  const apiResponse = await sslcz.init(sslData);
+  let apiResponse;
+  try {
+    apiResponse = await sslcz.init(sslData);
+  } catch (error) {
+    console.error('[SSLCommerz] Init Error:', error);
+    throw new Error('Unable to connect to payment gateway. Please try again later.');
+  }
 
   if (!apiResponse?.GatewayPageURL) {
-    throw new Error(
-      `SSLCommerz init failed: ${apiResponse?.failedreason || 'Unknown error'}`
-    );
+    console.error('[SSLCommerz] Missing GatewayPageURL:', apiResponse);
+    throw new Error('Unable to connect to payment gateway. Please try again later.');
   }
 
   return {
@@ -198,14 +206,23 @@ const initPaymentSession = async ({ transactionId, amount, userInfo, billingMont
  * @returns {Promise<Object>} Raw SSLCommerz validation response
  */
 const verifyTransaction = async (transactionId) => {
+  if (!process.env.SSL_STORE_ID || !process.env.SSL_STORE_PASSWORD) {
+    throw new Error('Payment gateway is not configured correctly.');
+  }
+
   const sslcz = new SSLCommerzPayment(
     process.env.SSL_STORE_ID,
     process.env.SSL_STORE_PASSWORD,
     IS_LIVE
   );
 
-  const validationResponse = await sslcz.validate({ val_id: transactionId });
-  return validationResponse;
+  try {
+    const validationResponse = await sslcz.validate({ val_id: transactionId });
+    return validationResponse;
+  } catch (error) {
+    console.error('[SSLCommerz] Validate Error:', error);
+    throw new Error('Unable to verify payment.');
+  }
 };
 
 module.exports = {

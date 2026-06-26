@@ -16,7 +16,7 @@ const PAYMENT_METHODS = [
   {
     id: 'VISA',
     label: 'Visa',
-    emoji: '💳',
+    logo: '/payment-logos/visa.svg',
     color: 'from-blue-600 to-blue-800',
     border: 'border-blue-500/40',
     text: 'text-blue-300',
@@ -24,7 +24,7 @@ const PAYMENT_METHODS = [
   {
     id: 'MASTERCARD',
     label: 'MasterCard',
-    emoji: '🔴',
+    logo: '/payment-logos/mastercard.svg',
     color: 'from-red-700 to-orange-700',
     border: 'border-red-500/40',
     text: 'text-red-300',
@@ -32,7 +32,7 @@ const PAYMENT_METHODS = [
   {
     id: 'AMEX',
     label: 'Amex',
-    emoji: '🟦',
+    logo: '/payment-logos/amex.svg',
     color: 'from-sky-700 to-sky-900',
     border: 'border-sky-500/40',
     text: 'text-sky-300',
@@ -40,7 +40,7 @@ const PAYMENT_METHODS = [
   {
     id: 'BKASH',
     label: 'bKash',
-    emoji: '📱',
+    logo: '/payment-logos/bkash.svg',
     color: 'from-pink-600 to-pink-800',
     border: 'border-pink-500/40',
     text: 'text-pink-300',
@@ -48,7 +48,7 @@ const PAYMENT_METHODS = [
   {
     id: 'NAGAD',
     label: 'Nagad',
-    emoji: '🟠',
+    logo: '/payment-logos/nagad.svg',
     color: 'from-orange-600 to-red-700',
     border: 'border-orange-500/40',
     text: 'text-orange-300',
@@ -56,7 +56,7 @@ const PAYMENT_METHODS = [
   {
     id: 'ROCKET',
     label: 'Rocket',
-    emoji: '🚀',
+    logo: '/payment-logos/rocket.svg',
     color: 'from-violet-600 to-violet-900',
     border: 'border-violet-500/40',
     text: 'text-violet-300',
@@ -64,7 +64,7 @@ const PAYMENT_METHODS = [
   {
     id: 'UPAY',
     label: 'Upay',
-    emoji: '💜',
+    logo: '/payment-logos/upay.svg',
     color: 'from-purple-600 to-purple-900',
     border: 'border-purple-500/40',
     text: 'text-purple-300',
@@ -253,31 +253,43 @@ const PaymentPage = ({ onNavigate }) => {
               ) : (
                 <>
                   {/* ── Payment Method Selector ───────────────────────────────── */}
-                  <div>
+                  <div className="relative">
+                    {/* Processing Overlay */}
+                    {paying && (
+                      <div className="absolute inset-0 z-10 rounded-xl bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center animate-fade-in">
+                        <div className="bg-slate-800/80 px-4 py-2 rounded-lg border border-surface-border text-sm font-medium text-slate-200 flex items-center gap-3 shadow-xl">
+                          <span className="h-4 w-4 rounded-full border-2 border-brand-500/30 border-t-brand-500 animate-spin" />
+                          Processing...
+                        </div>
+                      </div>
+                    )}
                     <h3 className="text-sm font-semibold text-slate-300 mb-3">
                       {t('selectPaymentMethod')}
                     </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {PAYMENT_METHODS.map((method) => (
                         <button
                           key={method.id}
                           id={`method-${method.id.toLowerCase()}`}
                           onClick={() => setSelectedMethod(method.id)}
+                          disabled={paying}
                           className={`
-                            relative flex flex-col items-center justify-center gap-1.5
-                            rounded-xl border py-4 px-3 transition-all duration-200
+                            relative flex flex-col items-center justify-center gap-2
+                            rounded-xl border py-4 px-3 transition-all duration-300 ease-out outline-none
+                            focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
+                            ${paying ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-lg'}
                             ${selectedMethod === method.id
-                              ? `bg-gradient-to-br ${method.color} ${method.border} scale-[1.04] shadow-lg`
+                              ? `bg-gradient-to-br ${method.color} ${method.border} scale-[1.02] shadow-xl ring-1 ring-white/20`
                               : 'border-surface-border bg-slate-900/40 hover:border-slate-500 hover:bg-slate-800/50'
                             }
                           `}
                         >
-                          <span className="text-2xl">{method.emoji}</span>
-                          <span className={`text-xs font-semibold ${selectedMethod === method.id ? 'text-white' : 'text-slate-400'}`}>
+                          <img src={method.logo} alt={method.label} className="h-8 w-auto object-contain drop-shadow-md" />
+                          <span className={`text-xs font-semibold tracking-wide ${selectedMethod === method.id ? 'text-white' : 'text-slate-400'}`}>
                             {method.label}
                           </span>
                           {selectedMethod === method.id && (
-                            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-white/80" />
+                            <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                           )}
                         </button>
                       ))}
@@ -289,12 +301,12 @@ const PaymentPage = ({ onNavigate }) => {
                     id="pay-now-btn"
                     onClick={handlePay}
                     disabled={paying || !selectedMethod}
-                    className="btn-brand w-full flex items-center justify-center gap-3 py-4 text-base"
+                    className={`btn-brand w-full flex items-center justify-center gap-3 py-4 text-base transition-all duration-300 ${paying ? 'opacity-80 cursor-wait shadow-none transform-none' : ''}`}
                   >
                     {paying ? (
                       <>
                         <span className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                        {t('redirectingToGateway')}
+                        Initiating Secure Payment...
                       </>
                     ) : (
                       <>

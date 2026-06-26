@@ -25,13 +25,17 @@ const char* WIFI_SSID     = "Shahriar's S24 Ultra";
 const char* WIFI_PASSWORD = "10101010";
 
 // ─── Backend Server Configuration ─────────────────────────────────────────────
-// Node.js backend — PC's Wi-Fi IP (10.97.12.224 from ipconfig)
+// Use a hostname (e.g. "smart-hostel.local") or static IP for production
 const char* SERVER_IP     = "10.97.12.224";
 const int   SERVER_PORT   = 5000;
 const char* ENDPOINT      = "/api/readings";
 
 // ─── Device Identity ───────────────────────────────────────────────────────────
 const char* ESP_ID        = "ESP-2049";
+
+// ─── Device Telemetry Secret ──────────────────────────────────────────────────
+// Must match DEVICE_SECRET in backend/.env
+const char* DEVICE_SECRET = "SmartHostelDeviceSecret123";
 
 // ─── LCD (I2C address 0x27) ────────────────────────────────────────────────────
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -44,14 +48,28 @@ EnergyMonitor emon;
 #define currCalibration  3.0
 
 // ─── State ─────────────────────────────────────────────────────────────────────
-float         kWh        = 0;
-unsigned long lastMillis = 0;
-bool          screenToggle = false;
+float         kWh             = 0;
+unsigned long lastMillis      = 0;
+bool          screenToggle    = false;
+
+// ─── POST Throttling ──────────────────────────────────────────────────────────
+// Only send data to the server every POST_INTERVAL_MS milliseconds
+// LCD & sensor readings still update every ~2 seconds
+const unsigned long POST_INTERVAL_MS = 30000; // 30 seconds
+unsigned long       lastPostMillis   = 0;
+
+// ─── WiFi State (non-blocking reconnect) ──────────────────────────────────────
+bool          wifiConnected   = false;
+unsigned long wifiRetryMillis = 0;
+const unsigned long WIFI_RETRY_MS = 5000; // retry every 5 s
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Block until WiFi is connected, with LCD + serial feedback. */
-void connectWiFi() {
+/**
+ * Attempt WiFi connection (blocking) during initial setup only.
+ * After setup, reconnection is handled non-blocking in the loop.
+ */
+void connectWiFiBlocking() {
   Serial.print("[WiFi] Connecting to ");
   Serial.print(WIFI_SSID);
 
@@ -75,6 +93,7 @@ void connectWiFi() {
     }
   }
 
+  wifiConnected = true;
   Serial.println("\n[WiFi] Connected!");
   Serial.print("[WiFi] IP Address: ");
   Serial.println(WiFi.localIP());
@@ -88,11 +107,33 @@ void connectWiFi() {
 }
 
 /**
+ * Non-blocking WiFi reconnect — called in loop() when WiFi drops.
+ * Returns true if connected, false if still reconnecting.
+ */
+bool ensureWiFi() {
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = true;
+    return true;
+  }
+
+  wifiConnected = false;
+  unsigned long now = millis();
+  if (now - wifiRetryMillis >= WIFI_RETRY_MS) {
+    wifiRetryMillis = now;
+    Serial.println("[WiFi] Disconnected — attempting reconnect…");
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  }
+  return false;
+}
+
+/**
  * Send a JSON reading to the backend via HTTP POST.
+ * Includes X-Device-Secret header for authentication.
  * Returns the HTTP response code, or -1 on error.
  */
 int postReading(float voltage, float current, float power, float energy) {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!wifiConnected) {
     Serial.println("[HTTP] WiFi disconnected — skipping POST");
     return -1;
   }
@@ -117,6 +158,7 @@ int postReading(float voltage, float current, float power, float energy) {
   HTTPClient http;
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-Device-Secret", DEVICE_SECRET);
   http.setTimeout(5000); // 5 s timeout
 
   int httpCode = http.POST(payload);
@@ -148,10 +190,11 @@ void setup() {
   emon.voltage(35, vCalibration, 1.7); // ZMPT101B → GPIO 35
   emon.current(34, currCalibration);   // SCT-013  → GPIO 34
 
-  // WiFi
-  connectWiFi();
+  // WiFi (blocking on first boot)
+  connectWiFiBlocking();
 
-  lastMillis = millis();
+  lastMillis     = millis();
+  lastPostMillis = millis();
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -190,10 +233,16 @@ void loop() {
   Serial.printf("V: %.2f V | I: %.3f A | P: %.2f W | E: %.5f kWh\n",
                 voltage, current, power, kWh);
 
-  // ── 4. HTTP POST to backend ──────────────────────────────────────────────────
-  postReading(voltage, current, power, kWh);
+  // ── 4. Non-blocking WiFi check ────────────────────────────────────────────────
+  bool online = ensureWiFi();
 
-  // ── 5. LCD display (alternating screens) ─────────────────────────────────────
+  // ── 5. Throttled HTTP POST to backend (every POST_INTERVAL_MS) ────────────────
+  if (online && (now - lastPostMillis >= POST_INTERVAL_MS)) {
+    lastPostMillis = now;
+    postReading(voltage, current, power, kWh);
+  }
+
+  // ── 6. LCD display (alternating screens) ─────────────────────────────────────
   lcd.clear();
 
   if (!screenToggle) {

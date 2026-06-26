@@ -3,6 +3,25 @@
  */
 
 require('dotenv').config();
+
+// ─── Environment Validation ───────────────────────────────────────────────────
+const requiredEnv = [
+  'MONGO_URI',
+  'JWT_SECRET',
+  'SSL_STORE_ID',
+  'SSL_STORE_PASSWORD',
+  'DEVICE_SECRET'
+];
+
+const missingEnv = requiredEnv.filter((envVar) => !process.env[envVar]);
+
+if (missingEnv.length > 0) {
+  console.error('\n❌ FATAL ERROR: Missing required environment variables:');
+  missingEnv.forEach((envVar) => console.error(`   - ${envVar}`));
+  console.error('\nPlease check your .env file and try again. See .env.example for reference.\n');
+  process.exit(1);
+}
+
 const express = require('express');
 const cors    = require('cors');
 

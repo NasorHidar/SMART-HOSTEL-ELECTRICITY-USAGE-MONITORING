@@ -215,7 +215,7 @@ const verifyPayment = async (req, res) => {
     });
   } catch (error) {
     console.error('[Payment] verifyPayment error:', error);
-    res.status(500).json({ message: 'Verification failed — please try again' });
+    res.status(500).json({ message: error.message || 'Verification failed — please try again' });
   }
 };
 

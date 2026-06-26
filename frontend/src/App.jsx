@@ -14,6 +14,7 @@ import PaymentPage       from './pages/PaymentPage';
 import PaymentHistory    from './pages/PaymentHistory';
 import PaymentSuccess    from './pages/PaymentSuccess';
 import PaymentFailed     from './pages/PaymentFailed';
+import CarbonDashboardPage from './pages/CarbonDashboardPage';
 
 const App = () => {
   const { user } = useAuth();
@@ -57,6 +58,8 @@ const App = () => {
       return <PaymentSuccess onNavigate={handleNavigate} urlParams={urlParams} />;
     case 'failed':
       return <PaymentFailed onNavigate={handleNavigate} urlParams={urlParams} />;
+    case 'carbon':
+      return <CarbonDashboardPage onNavigate={handleNavigate} />;
     default:
       return <DashboardPage onNavigate={handleNavigate} />;
   }

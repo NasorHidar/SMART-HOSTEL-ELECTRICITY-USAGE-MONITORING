@@ -14,12 +14,12 @@ const PaymentSuccess = ({ onNavigate, urlParams }) => {
   const { t, formatNumber, formatDate } = useLanguage();
 
   const transactionId = urlParams.get('transactionId') || '';
-  const amount        = parseFloat(urlParams.get('amount') || '0');
-  const month         = urlParams.get('month') || '';
+  const amount = parseFloat(urlParams.get('amount') || '0');
+  const month = urlParams.get('month') || '';
 
-  const [verifying, setVerifying]   = useState(true);
-  const [verified, setVerified]     = useState(false);
-  const [countdown, setCountdown]   = useState(10);
+  const [verifying, setVerifying] = useState(true);
+  const [verified, setVerified] = useState(false);
+  const [countdown, setCountdown] = useState(10);
   const [showReceipt, setShowReceipt] = useState(false);
 
   // ── Verify transaction with backend ────────────────────────────────────────
