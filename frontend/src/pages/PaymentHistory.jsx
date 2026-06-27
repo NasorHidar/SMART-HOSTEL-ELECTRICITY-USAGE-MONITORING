@@ -96,7 +96,7 @@ const PaymentHistory = ({ onNavigate }) => {
       // Title
       doc.setFontSize(16);
       doc.setTextColor(30, 41, 59);
-      doc.text('Smart Hostel — Payment History', 14, 18);
+      doc.text('NexTrack — Payment History', 14, 18);
 
       doc.setFontSize(10);
       doc.setTextColor(100);
@@ -130,7 +130,7 @@ const PaymentHistory = ({ onNavigate }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="border-b border-surface-border bg-white/60 dark:bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <button
             onClick={() => onNavigate('dashboard')}
@@ -308,7 +308,7 @@ const PaymentHistory = ({ onNavigate }) => {
       </main>
 
       <footer className="border-t border-surface-border py-4 text-center text-xs text-slate-600">
-        {t('hostelElectricityMonitor')} · {t('securePaymentNote')}
+        {t('hostelElectricityMonitor')}
       </footer>
     </div>
   );

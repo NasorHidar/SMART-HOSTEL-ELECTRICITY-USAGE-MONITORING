@@ -8,7 +8,7 @@ const translations = {
   en: {
     // Auth / Login
     smartMeter: 'Smart Meter',
-    hostelElectricityMonitor: 'Hostel Electricity Monitor',
+    hostelElectricityMonitor: 'NexTrack: An IoT-Based Energy Analytics and Cost Prediction Platform',
     deviceId: 'Device ID',
     enterIdPlaceholder: 'e.g. ESP-2049',
     enterIdHelp: 'Enter the ID printed on your meter device',
@@ -97,7 +97,7 @@ const translations = {
     payNow: 'Pay Now Securely',
     redirectingToGateway: 'Redirecting to payment gateway...',
     securePaymentNote: 'Payments are processed securely via SSLCommerz.',
-    securePaymentFooter: 'Secure payments powered by SSLCommerz · Smart Hostel',
+    securePaymentFooter: 'Secure payments powered by SSLCommerz · NexTrack',
     noBillData: 'Unable to load bill data.',
     viewPaymentHistory: 'View Payment History',
     backToDashboard: 'Back to Dashboard',
@@ -222,7 +222,7 @@ const translations = {
   bn: {
     // Auth / Login
     smartMeter: 'স্মার্ট মিটার',
-    hostelElectricityMonitor: 'হোস্টেল বিদ্যুৎ ব্যবহার পর্যবেক্ষণ',
+    hostelElectricityMonitor: 'NexTrack: An IoT-Based Energy Analytics and Cost Prediction Platform',
     deviceId: 'ডিভাইস আইডি',
     enterIdPlaceholder: 'যেমন: ESP-2049',
     enterIdHelp: 'আপনার মিটারে প্রিন্ট করা আইডিটি প্রবেশ করান',
@@ -311,7 +311,7 @@ const translations = {
     payNow: 'এখনই নিরাপদে পেমেন্ট করুন',
     redirectingToGateway: 'পেমেন্ট গেটওয়েতে পাঠানো হচ্ছে...',
     securePaymentNote: 'পেমেন্ট SSLCommerz-এর মাধ্যমে নিরাপদে প্রক্রিয়া করা হয়।',
-    securePaymentFooter: 'SSLCommerz দ্বারা নিরাপদ পেমেন্ট · স্মার্ট হোস্টেল',
+    securePaymentFooter: 'SSLCommerz দ্বারা নিরাপদ পেমেন্ট · NexTrack',
     noBillData: 'বিলের তথ্য লোড করা সম্ভব হয়নি।',
     viewPaymentHistory: 'পেমেন্ট ইতিহাস দেখুন',
     backToDashboard: 'ড্যাশবোর্ডে ফিরুন',

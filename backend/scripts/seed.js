@@ -32,28 +32,36 @@ const seedDatabase = async () => {
     console.log('[Seed] Database cleared.');
 
     // ── 2. Create Users ─────────────────────────────────────────────────────
-    console.log('[Seed] Seeding residents...');
+    console.log('[Seed] Seeding residents (Authors)...');
     
-    // Alice Rahman (Default Resident)
-    // password defaults to the esp_id if left blank or can be set explicitly
-    const alice = await User.create({
+    // Nasor Hidar (Primary Resident)
+    const nasor = await User.create({
       esp_id:          'ESP-2049',
-      student_name:    'Alice Rahman',
+      student_name:    'Nasor Hidar',
       room_number:     '101',
       password:        'ESP-2049',
       daily_limit_kwh: 5.0,
     });
 
-    // Bob Smith (Second Resident)
-    const bob = await User.create({
+    // MD. SHAHRIAR SHAKIB (Second Resident)
+    const shakib = await User.create({
       esp_id:          'ESP-8888',
-      student_name:    'Bob Smith',
+      student_name:    'MD. SHAHRIAR SHAKIB',
       room_number:     '102',
       password:        'ESP-8888',
       daily_limit_kwh: 6.0,
     });
 
-    console.log(`[Seed] Seeded users:\n  - Alice Rahman (${alice.esp_id})\n  - Bob Smith (${bob.esp_id})`);
+    // SUHITA SRUTEE (Third Resident)
+    const suhita = await User.create({
+      esp_id:          'ESP-0404',
+      student_name:    'SUHITA SRUTEE',
+      room_number:     '103',
+      password:        'ESP-0404',
+      daily_limit_kwh: 4.5,
+    });
+
+    console.log(`[Seed] Seeded users:\n  - Nasor Hidar (${nasor.esp_id})\n  - MD. SHAHRIAR SHAKIB (${shakib.esp_id})\n  - SUHITA SRUTEE (${suhita.esp_id})`);
 
     // ── 3. Seed Telemetry readings (24 hours back) ──────────────────────────
     console.log('[Seed] Seeding 24 hours of telemetry readings for chart visualizations...');
@@ -61,43 +69,56 @@ const seedDatabase = async () => {
     const now = new Date();
     const readingDocs = [];
     
-    // Alice's readings: gradual power usage increment
-    let aliceEnergy = 0.05;
-    // Bob's readings: higher starting energy
-    let bobEnergy = 0.12;
+    let nasorEnergy = 0.05;
+    let shakibEnergy = 0.12;
+    let suhitaEnergy = 0.08;
 
     for (let h = 24; h >= 0; h--) {
-      // 1 reading per hour
       const timeStamp = new Date(now.getTime() - h * 60 * 60 * 1000);
 
-      // Alice: standard lights + laptop load (50W - 150W)
-      const aliceVolts = 218 + Math.random() * 6;
-      const alicePower = 60 + Math.random() * 80;
-      const aliceCurr  = alicePower / aliceVolts;
-      aliceEnergy += (alicePower * 1.0) / 1000; // 1 hour of power in kWh
+      // Nasor: standard loads (50W - 150W)
+      const nasorVolts = 218 + Math.random() * 6;
+      const nasorPower = 60 + Math.random() * 80;
+      const nasorCurr  = nasorPower / nasorVolts;
+      nasorEnergy += (nasorPower * 1.0) / 1000;
 
       readingDocs.push({
-        esp_id:    alice.esp_id,
+        esp_id:    nasor.esp_id,
         timestamp: timeStamp,
-        voltage:   parseFloat(aliceVolts.toFixed(2)),
-        current:   parseFloat(aliceCurr.toFixed(3)),
-        power:     parseFloat(alicePower.toFixed(2)),
-        energy:    parseFloat(aliceEnergy.toFixed(4)),
+        voltage:   parseFloat(nasorVolts.toFixed(2)),
+        current:   parseFloat(nasorCurr.toFixed(3)),
+        power:     parseFloat(nasorPower.toFixed(2)),
+        energy:    parseFloat(nasorEnergy.toFixed(4)),
       });
 
-      // Bob: higher load (100W - 350W)
-      const bobVolts = 217 + Math.random() * 7;
-      const bobPower = 110 + Math.random() * 200;
-      const bobCurr  = bobPower / bobVolts;
-      bobEnergy += (bobPower * 1.0) / 1000;
+      // Shakib: higher loads (100W - 350W)
+      const shakibVolts = 217 + Math.random() * 7;
+      const shakibPower = 110 + Math.random() * 200;
+      const shakibCurr  = shakibPower / shakibVolts;
+      shakibEnergy += (shakibPower * 1.0) / 1000;
 
       readingDocs.push({
-        esp_id:    bob.esp_id,
+        esp_id:    shakib.esp_id,
         timestamp: timeStamp,
-        voltage:   parseFloat(bobVolts.toFixed(2)),
-        current:   parseFloat(bobCurr.toFixed(3)),
-        power:     parseFloat(bobPower.toFixed(2)),
-        energy:    parseFloat(bobEnergy.toFixed(4)),
+        voltage:   parseFloat(shakibVolts.toFixed(2)),
+        current:   parseFloat(shakibCurr.toFixed(3)),
+        power:     parseFloat(shakibPower.toFixed(2)),
+        energy:    parseFloat(shakibEnergy.toFixed(4)),
+      });
+
+      // Suhita: standard loads (40W - 200W)
+      const suhitaVolts = 219 + Math.random() * 5;
+      const suhitaPower = 50 + Math.random() * 150;
+      const suhitaCurr  = suhitaPower / suhitaVolts;
+      suhitaEnergy += (suhitaPower * 1.0) / 1000;
+
+      readingDocs.push({
+        esp_id:    suhita.esp_id,
+        timestamp: timeStamp,
+        voltage:   parseFloat(suhitaVolts.toFixed(2)),
+        current:   parseFloat(suhitaCurr.toFixed(3)),
+        power:     parseFloat(suhitaPower.toFixed(2)),
+        energy:    parseFloat(suhitaEnergy.toFixed(4)),
       });
     }
 
@@ -109,41 +130,41 @@ const seedDatabase = async () => {
     
     const lastMonthStr = new Date(now.getFullYear(), now.getMonth() - 1)
       .toISOString()
-      .slice(0, 7); // YYYY-MM
+      .slice(0, 7);
 
-    // Alice paid last month's bill
+    // Nasor paid last month's bill
     await Payment.create({
-      userId:         alice._id,
-      esp_id:         alice.esp_id,
+      userId:         nasor._id,
+      esp_id:         nasor.esp_id,
       billingMonth:   lastMonthStr,
       cumulativeKWh:  42.5,
-      energyCharge:   223.55, // 42.5 * 5.26
+      energyCharge:   223.55,
       demandCharge:   42.00,
       amount:         265.55,
       paymentStatus:  'paid',
       paymentMethod:  'BKASH',
-      transactionId:  'TXN_ALICE_SEED_99',
-      paidAt:         new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
+      transactionId:  'TXN_NASOR_SEED_99',
+      paidAt:         new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000),
     });
 
-    // Bob failed first attempt then paid
+    // Shakib failed first attempt then paid
     await Payment.create({
-      userId:         bob._id,
-      esp_id:         bob.esp_id,
+      userId:         shakib._id,
+      esp_id:         shakib.esp_id,
       billingMonth:   lastMonthStr,
       cumulativeKWh:  85.0,
-      energyCharge:   458.70, // step rate
+      energyCharge:   458.70,
       demandCharge:   42.00,
       amount:         500.70,
       paymentStatus:  'failed',
       paymentMethod:  'VISA',
-      transactionId:  'TXN_BOB_FAIL_12',
+      transactionId:  'TXN_SHAKIB_FAIL_12',
       paidAt:         null,
     });
 
     await Payment.create({
-      userId:         bob._id,
-      esp_id:         bob.esp_id,
+      userId:         shakib._id,
+      esp_id:         shakib.esp_id,
       billingMonth:   lastMonthStr,
       cumulativeKWh:  85.0,
       energyCharge:   458.70,
@@ -151,8 +172,8 @@ const seedDatabase = async () => {
       amount:         500.70,
       paymentStatus:  'paid',
       paymentMethod:  'NAGAD',
-      transactionId:  'TXN_BOB_SUCCESS_34',
-      paidAt:         new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
+      transactionId:  'TXN_SHAKIB_SUCCESS_34',
+      paidAt:         new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
     });
 
     console.log('[Seed] Seeded historical payments.');
@@ -161,7 +182,7 @@ const seedDatabase = async () => {
     console.log('[Seed] Seeding sample AI alert...');
     
     await Alert.create({
-      esp_id:       alice.esp_id,
+      esp_id:       nasor.esp_id,
       severity:     'anomaly',
       message:      'Potential high-wattage resistive load (1200W electric kettle/heater) detected. Please check your room appliances.',
       avg_power:    1240.5,

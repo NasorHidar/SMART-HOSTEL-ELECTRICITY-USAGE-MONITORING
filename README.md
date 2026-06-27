@@ -1,4 +1,4 @@
-# ⚡ Smart Hostel Electricity Usage Monitoring System
+# ⚡ NexTrack: An IoT-Based Energy Analytics and Cost Prediction Platform
 
 A secure, production‑ready, full‑stack IoT application designed to **monitor, analyze, and manage** electricity consumption across university hostel rooms. Real‑time telemetry is collected by **ESP32** micro‑controllers, processed by a **Node.js / Express** backend, stored in an optimized **MongoDB Time‑Series** collection, analyzed for anomalies by **Google Gemini AI**, and displayed on a premium **bilingual (English / Bangla) React** dashboard with secure online billing via **SSLCommerz**.
 

@@ -189,7 +189,7 @@ const PaymentPage = ({ onNavigate }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="border-b border-surface-border bg-white/60 dark:bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button

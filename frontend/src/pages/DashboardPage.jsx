@@ -512,7 +512,7 @@ const DashboardPage = ({ onNavigate }) => {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 dark:border-slate-700 py-4 text-center text-xs text-slate-500 dark:text-slate-600">
-        {t('hostelElectricityMonitor')} &nbsp;·&nbsp; Powered by Gemini AI
+        {t('hostelElectricityMonitor')}
       </footer>
     </div>
   );
