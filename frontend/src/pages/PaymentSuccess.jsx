@@ -67,8 +67,8 @@ const PaymentSuccess = ({ onNavigate, urlParams }) => {
           <div className="glass-card p-10 flex flex-col items-center gap-4 text-center"
             style={{ boxShadow: '0 0 60px rgba(37,162,101,0.15)' }}>
             <div className="h-16 w-16 rounded-full border-4 border-brand-500/30 border-t-brand-400 animate-spin" />
-            <p className="text-slate-300 font-medium">{t('verifyingPayment')}</p>
-            <p className="text-slate-600 text-sm">{t('verifyingPaymentSub')}</p>
+            <p className="text-slate-700 dark:text-slate-300 font-medium">{t('verifyingPayment')}</p>
+            <p className="text-slate-500 dark:text-slate-600 text-sm">{t('verifyingPaymentSub')}</p>
           </div>
         ) : (
           /* Success state */
@@ -85,28 +85,28 @@ const PaymentSuccess = ({ onNavigate, urlParams }) => {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold text-brand-300">{t('paymentSuccessful')}</h1>
-              <p className="text-slate-400 text-sm mt-1">{t('paymentSuccessfulSub')}</p>
+              <h1 className="text-2xl font-bold text-brand-600 dark:text-brand-300">{t('paymentSuccessful')}</h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('paymentSuccessfulSub')}</p>
             </div>
 
             {/* Amount highlight */}
             {amount > 0 && (
               <div className="bg-brand-500/10 border border-brand-500/30 rounded-xl px-8 py-4 w-full">
-                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{t('amountPaid')}</p>
-                <p className="text-4xl font-bold font-mono text-brand-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('amountPaid')}</p>
+                <p className="text-4xl font-bold font-mono text-brand-600 dark:text-brand-400">
                   ৳ {formatNumber(amount, 2)}
                 </p>
                 {month && (
-                  <p className="text-xs text-slate-500 mt-1">{t('billingMonth')}: {month}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('billingMonth')}: {month}</p>
                 )}
               </div>
             )}
 
             {/* Transaction ID */}
             {transactionId && (
-              <div className="w-full bg-slate-900/50 rounded-lg px-4 py-3 text-left">
+              <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-lg px-4 py-3 text-left border border-slate-200 dark:border-slate-800">
                 <p className="text-xs text-slate-500 mb-1">{t('transactionId')}</p>
-                <p className="font-mono text-slate-300 text-sm break-all">{transactionId}</p>
+                <p className="font-mono text-slate-700 dark:text-slate-300 text-sm break-all">{transactionId}</p>
               </div>
             )}
 
@@ -114,29 +114,29 @@ const PaymentSuccess = ({ onNavigate, urlParams }) => {
             <button
               id="view-receipt-btn"
               onClick={() => setShowReceipt((v) => !v)}
-              className="text-sm text-brand-400 hover:text-brand-300 underline underline-offset-4 transition-colors"
+              className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 underline underline-offset-4 transition-colors"
             >
               {showReceipt ? t('hideReceipt') : t('viewReceipt')} 🧾
             </button>
 
             {/* Receipt modal */}
             {showReceipt && (
-              <div className="w-full bg-slate-900/60 border border-surface-border rounded-xl p-4 text-left text-sm flex flex-col gap-2 animate-fade-in">
-                <div className="flex justify-between py-1 border-b border-surface-border/50">
+              <div className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-surface-border rounded-xl p-4 text-left text-sm flex flex-col gap-2 animate-fade-in">
+                <div className="flex justify-between py-1 border-b border-slate-200 dark:border-surface-border/50">
                   <span className="text-slate-500">{t('device')}</span>
-                  <span className="text-slate-300 font-mono">—</span>
+                  <span className="text-slate-700 dark:text-slate-300 font-mono">—</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-surface-border/50">
+                <div className="flex justify-between py-1 border-b border-slate-200 dark:border-surface-border/50">
                   <span className="text-slate-500">{t('billingMonth')}</span>
-                  <span className="text-slate-300">{month || '—'}</span>
+                  <span className="text-slate-700 dark:text-slate-300">{month || '—'}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-surface-border/50">
+                <div className="flex justify-between py-1 border-b border-slate-200 dark:border-surface-border/50">
                   <span className="text-slate-500">{t('date')}</span>
-                  <span className="text-slate-300">{formatDate(new Date().toISOString())}</span>
+                  <span className="text-slate-700 dark:text-slate-300">{formatDate(new Date().toISOString())}</span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-500">{t('status')}</span>
-                  <span className="text-brand-300 font-semibold">✅ {t('statusPaid')}</span>
+                  <span className="text-brand-600 dark:text-brand-300 font-semibold">✅ {t('statusPaid')}</span>
                 </div>
               </div>
             )}
@@ -153,8 +153,8 @@ const PaymentSuccess = ({ onNavigate, urlParams }) => {
               <button
                 id="view-history-from-success-btn"
                 onClick={() => onNavigate('history')}
-                className="w-full py-3 rounded-xl border border-surface-border text-sm text-slate-400
-                           hover:text-white hover:border-slate-500 transition-colors"
+                className="w-full py-3 rounded-xl border border-slate-300 dark:border-surface-border text-sm text-slate-600 dark:text-slate-400
+                           hover:text-slate-900 dark:hover:text-white hover:border-slate-500 transition-colors"
               >
                 📜 {t('viewPaymentHistory')}
               </button>

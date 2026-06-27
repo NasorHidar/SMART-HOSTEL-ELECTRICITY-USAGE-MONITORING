@@ -14,10 +14,10 @@ import autoTable from 'jspdf-autotable';
 // ── Status badge helper ───────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
-    paid:      'bg-brand-500/20 border-brand-500/40 text-brand-300',
-    pending:   'bg-amber-500/20 border-amber-500/40 text-amber-300',
-    failed:    'bg-red-500/20 border-red-500/40 text-red-300',
-    cancelled: 'bg-slate-500/20 border-slate-500/40 text-slate-400',
+    paid:      'bg-brand-500/20 border-brand-500/40 text-brand-600 dark:text-brand-300',
+    pending:   'bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300',
+    failed:    'bg-red-500/20 border-red-500/40 text-red-600 dark:text-red-300',
+    cancelled: 'bg-slate-500/20 border-slate-500/40 text-slate-500 dark:text-slate-400',
   };
   const icons = { paid: '✅', pending: '⏳', failed: '❌', cancelled: '⊘' };
   const cls = map[status] || map.pending;
@@ -35,7 +35,7 @@ const MethodBadge = ({ method }) => {
     BKASH: '📱', NAGAD: '🟠', ROCKET: '🚀', UPAY: '💜', OTHER: '💰',
   };
   return (
-    <span className="inline-flex items-center gap-1 text-slate-300">
+    <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300">
       {emoji[method] || '💰'} {method || 'OTHER'}
     </span>
   );
@@ -130,16 +130,16 @@ const PaymentHistory = ({ onNavigate }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="border-b border-surface-border bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-surface-border bg-white/60 dark:bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm flex items-center gap-2"
             id="back-from-history-btn"
           >
             ← {t('backToDashboard')}
           </button>
-          <h1 className="font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
             📜 {t('paymentHistory')}
           </h1>
           {/* Export PDF */}
@@ -147,8 +147,8 @@ const PaymentHistory = ({ onNavigate }) => {
             id="export-pdf-btn"
             onClick={handleExportPDF}
             disabled={exporting || payments.length === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-surface-border text-sm
-                       text-slate-400 hover:text-white hover:border-slate-500 transition-colors disabled:opacity-40"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-surface-border text-sm
+                       text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-500 transition-colors disabled:opacity-40"
           >
             {exporting ? (
               <span className="h-4 w-4 rounded-full border-2 border-slate-500 border-t-white animate-spin" />
@@ -187,16 +187,16 @@ const PaymentHistory = ({ onNavigate }) => {
           {search && (
             <button type="button"
               onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
-              className="px-4 py-2.5 rounded-xl border border-surface-border text-sm text-slate-400 hover:text-white">
+              className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-surface-border text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
               ✕
             </button>
           )}
         </form>
 
         {/* ── Stats Row ─────────────────────────────────────────────────────── */}
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
           {t('showing')} {payments.length} {t('of')} {pagination.total} {t('records')}
-          {search && <span className="text-brand-400 ml-2">· {t('filtered')}: "{search}"</span>}
+          {search && <span className="text-brand-600 dark:text-brand-400 ml-2">· {t('filtered')}: "{search}"</span>}
         </div>
 
         {/* ── Table ──────────────────────────────────────────────────────────── */}
@@ -222,7 +222,7 @@ const PaymentHistory = ({ onNavigate }) => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-slate-400 bg-surface-card/60 border-b border-surface-border">
+                  <tr className="text-left text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-surface-card/60 border-b border-slate-200 dark:border-surface-border">
                     <th className="px-4 py-3.5 font-medium">{t('date')}</th>
                     <th className="px-4 py-3.5 font-medium">{t('billingMonth')}</th>
                     <th className="px-4 py-3.5 font-medium text-right">{t('amount')}</th>
@@ -235,17 +235,17 @@ const PaymentHistory = ({ onNavigate }) => {
                   {payments.map((p, i) => (
                     <tr
                       key={p._id}
-                      className="border-b border-surface-border/40 hover:bg-surface-card/30 transition-colors"
+                      className="border-b border-slate-200 dark:border-surface-border/40 hover:bg-slate-50 dark:hover:bg-surface-card/30 transition-colors"
                     >
-                      <td className="px-4 py-3.5 text-slate-400 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         {p.paidAt
                           ? formatDate(p.paidAt)
                           : formatDate(p.createdAt)}
                       </td>
-                      <td className="px-4 py-3.5 font-mono text-slate-300">
+                      <td className="px-4 py-3.5 font-mono text-slate-700 dark:text-slate-300">
                         {p.billingMonth}
                       </td>
-                      <td className="px-4 py-3.5 text-right font-mono font-semibold text-brand-400">
+                      <td className="px-4 py-3.5 text-right font-mono font-semibold text-brand-600 dark:text-brand-400">
                         ৳ {formatNumber(p.amount, 2)}
                       </td>
                       <td className="px-4 py-3.5">
@@ -272,8 +272,8 @@ const PaymentHistory = ({ onNavigate }) => {
               id="prev-page-btn"
               disabled={!pagination.hasPrevPage}
               onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 rounded-lg border border-surface-border text-sm text-slate-400
-                         hover:text-white hover:border-slate-500 disabled:opacity-30 transition-colors"
+              className="px-4 py-2 rounded-lg border border-slate-300 dark:border-surface-border text-sm text-slate-600 dark:text-slate-400
+                         hover:text-slate-900 dark:hover:text-white hover:border-slate-500 disabled:opacity-30 transition-colors"
             >
               ← {t('prev')}
             </button>
@@ -286,8 +286,8 @@ const PaymentHistory = ({ onNavigate }) => {
                   onClick={() => setPage(pg)}
                   className={`px-4 py-2 rounded-lg border text-sm transition-colors ${
                     pg === page
-                      ? 'border-brand-500 bg-brand-500/20 text-brand-300 font-semibold'
-                      : 'border-surface-border text-slate-400 hover:text-white hover:border-slate-500'
+                      ? 'border-brand-500 bg-brand-500/20 text-brand-600 dark:text-brand-300 font-semibold'
+                      : 'border-slate-200 dark:border-surface-border text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-500'
                   }`}
                 >
                   {pg}
@@ -298,8 +298,8 @@ const PaymentHistory = ({ onNavigate }) => {
               id="next-page-btn"
               disabled={!pagination.hasNextPage}
               onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 rounded-lg border border-surface-border text-sm text-slate-400
-                         hover:text-white hover:border-slate-500 disabled:opacity-30 transition-colors"
+              className="px-4 py-2 rounded-lg border border-slate-300 dark:border-surface-border text-sm text-slate-600 dark:text-slate-400
+                         hover:text-slate-900 dark:hover:text-white hover:border-slate-500 disabled:opacity-30 transition-colors"
             >
               {t('next')} →
             </button>

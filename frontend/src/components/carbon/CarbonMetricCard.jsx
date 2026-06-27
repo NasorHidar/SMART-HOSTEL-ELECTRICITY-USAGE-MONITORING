@@ -1,11 +1,4 @@
-/**
- * components/carbon/CarbonMetricCard.jsx
- *
- * Animated glassmorphism metric card for carbon data.
- * Design matches existing MetricCard.jsx aesthetic.
- */
-
-import { useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 
 const CarbonMetricCard = ({
   icon,
@@ -18,39 +11,15 @@ const CarbonMetricCard = ({
   trend,          // optional: 'up' | 'down' | null
   trendValue,     // optional: string like "−12%"
 }) => {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const onMouseMove = (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 12;
-      const y = ((e.clientY - rect.top)  / rect.height - 0.5) * -12;
-      card.style.transform = `perspective(600px) rotateY(${x}deg) rotateX(${y}deg) scale(1.02)`;
-    };
-    const onMouseLeave = () => {
-      card.style.transform = 'perspective(600px) rotateY(0deg) rotateX(0deg) scale(1)';
-    };
-
-    card.addEventListener('mousemove', onMouseMove);
-    card.addEventListener('mouseleave', onMouseLeave);
-    return () => {
-      card.removeEventListener('mousemove', onMouseMove);
-      card.removeEventListener('mouseleave', onMouseLeave);
-    };
-  }, []);
-
   const isLoading = value == null;
 
   return (
     <div
-      ref={cardRef}
-      className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5
+      className="relative rounded-2xl glass-card p-5
                  flex flex-col gap-3 overflow-hidden cursor-default
-                 transition-transform duration-200 ease-out"
-      style={{ boxShadow: `0 0 24px ${glow}, 0 4px 16px rgba(0,0,0,0.4)` }}
+                 hover:scale-[1.02] hover:shadow-2xl hover:border-brand-500/20
+                 transition-all duration-300 ease-out"
+      style={{ boxShadow: `0 0 24px ${glow}, 0 4px 16px rgba(0,0,0,0.15)` }}
     >
       {/* Subtle background glow blob */}
       <div
@@ -74,14 +43,14 @@ const CarbonMetricCard = ({
       {/* Value */}
       {isLoading ? (
         <div className="space-y-2">
-          <div className="h-7 w-3/4 rounded-lg bg-white/10 animate-pulse" />
-          <div className="h-3 w-1/2 rounded bg-white/5 animate-pulse" />
+          <div className="h-7 w-3/4 rounded-lg bg-slate-200 dark:bg-white/10 animate-pulse" />
+          <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-white/5 animate-pulse" />
         </div>
       ) : (
         <div>
           <div className={`text-2xl font-bold font-mono ${color} leading-none`}>
             {value}
-            <span className="text-sm font-normal text-slate-400 ml-1">{unit}</span>
+            <span className="text-sm font-normal text-slate-600 dark:text-slate-400 ml-1">{unit}</span>
           </div>
           {subtitle && (
             <p className="text-[11px] text-slate-500 mt-1.5 leading-snug">{subtitle}</p>
@@ -90,11 +59,11 @@ const CarbonMetricCard = ({
       )}
 
       {/* Label */}
-      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+      <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
         {label}
       </p>
     </div>
   );
 };
 
-export default CarbonMetricCard;
+export default memo(CarbonMetricCard);

@@ -25,7 +25,7 @@ const SavingsRow = ({ period, savings, t, formatNumber }) => {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{period}</p>
+        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">{period}</p>
         <p className={`text-lg font-bold font-mono ${improved ? 'text-emerald-400' : 'text-red-400'}`}>
           {improved ? '−' : '+'}{formatNumber(saved, 3)} kg CO₂
         </p>
@@ -52,10 +52,10 @@ const CarbonSavings = ({ savings, loading = false }) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 space-y-3">
-        <div className="h-4 w-44 bg-white/10 rounded animate-pulse mb-4" />
+      <div className="rounded-2xl glass-card p-6 space-y-3">
+        <div className="h-4 w-44 bg-slate-200 dark:bg-white/10 rounded animate-pulse mb-4" />
         {[0, 1].map((i) => (
-          <div key={i} className="h-20 rounded-xl bg-white/5 animate-pulse" />
+          <div key={i} className="h-20 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
         ))}
       </div>
     );
@@ -66,11 +66,11 @@ const CarbonSavings = ({ savings, loading = false }) => {
 
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6"
+      className="rounded-2xl glass-card p-6"
       style={{ boxShadow: '0 0 20px rgba(52,211,153,0.05), 0 4px 16px rgba(0,0,0,0.4)' }}
     >
       <div className="mb-5">
-        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <span>💚</span> {t('carbonSavingsTitle')}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">{t('carbonSavingsSub')}</p>

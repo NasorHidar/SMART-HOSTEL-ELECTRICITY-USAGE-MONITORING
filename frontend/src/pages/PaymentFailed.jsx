@@ -45,10 +45,10 @@ const PaymentFailed = ({ onNavigate, urlParams }) => {
 
           {/* Title */}
           <div>
-            <h1 className={`text-2xl font-bold ${isCancelled ? 'text-slate-300' : 'text-red-300'}`}>
+            <h1 className={`text-2xl font-bold ${isCancelled ? 'text-slate-700 dark:text-slate-300' : 'text-red-600 dark:text-red-300'}`}>
               {isCancelled ? t('paymentCancelled') : t('paymentFailed')}
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
               {isCancelled ? t('paymentCancelledSub') : t('paymentFailedSub')}
             </p>
           </div>
@@ -56,30 +56,30 @@ const PaymentFailed = ({ onNavigate, urlParams }) => {
           {/* Reason */}
           {readableReason && (
             <div className="w-full bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-left">
-              <p className="text-xs text-red-400 font-medium mb-1">Reason</p>
-              <p className="text-sm text-slate-300">{readableReason}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">Reason</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300">{readableReason}</p>
             </div>
           )}
 
           {/* Transaction ID */}
           {transactionId && (
-            <div className="w-full bg-slate-900/50 rounded-lg px-4 py-3 text-left">
+            <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-lg px-4 py-3 text-left border border-slate-200 dark:border-slate-800">
               <p className="text-xs text-slate-500 mb-1">{t('transactionId')}</p>
-              <p className="font-mono text-slate-400 text-sm break-all">{transactionId}</p>
+              <p className="font-mono text-slate-700 dark:text-slate-400 text-sm break-all">{transactionId}</p>
             </div>
           )}
 
           {/* Suggestions */}
-          <div className="w-full bg-slate-900/40 border border-surface-border rounded-xl p-4 text-left text-sm">
-            <p className="text-slate-400 font-medium mb-2">{t('whatToDoNext')}</p>
+          <div className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-surface-border rounded-xl p-4 text-left text-sm">
+            <p className="text-slate-600 dark:text-slate-400 font-medium mb-2">{t('whatToDoNext')}</p>
             <ul className="flex flex-col gap-1.5">
               {[
                 t('tryAgainSuggestion'),
                 t('checkBalanceSuggestion'),
                 t('contactSupportSuggestion'),
               ].map((tip, i) => (
-                <li key={i} className="text-slate-500 flex items-start gap-2">
-                  <span className="text-brand-400 mt-0.5">•</span> {tip}
+                <li key={i} className="text-slate-600 dark:text-slate-500 flex items-start gap-2">
+                  <span className="text-brand-500 dark:text-brand-400 mt-0.5">•</span> {tip}
                 </li>
               ))}
             </ul>
@@ -97,8 +97,8 @@ const PaymentFailed = ({ onNavigate, urlParams }) => {
             <button
               id="back-to-dashboard-failed-btn"
               onClick={() => onNavigate('dashboard')}
-              className="w-full py-3 rounded-xl border border-surface-border text-sm text-slate-400
-                         hover:text-white hover:border-slate-500 transition-colors"
+              className="w-full py-3 rounded-xl border border-slate-300 dark:border-surface-border text-sm text-slate-600 dark:text-slate-400
+                         hover:text-slate-900 dark:hover:text-white hover:border-slate-500 transition-colors"
             >
               🏠 {t('backToDashboard')}
             </button>

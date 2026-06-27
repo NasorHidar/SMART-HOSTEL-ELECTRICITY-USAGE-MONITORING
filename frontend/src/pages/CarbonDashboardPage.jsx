@@ -90,7 +90,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
       value: daily?.co2 != null ? formatNumber(daily.co2, 3) : null,
       unit: 'kg CO₂',
       subtitle: `${formatNumber(daily?.kwh ?? 0, 4)} kWh`,
-      color: 'text-emerald-400',
+      color: 'text-emerald-600 dark:text-emerald-400',
       glow:  'rgba(52,211,153,0.2)',
     },
     {
@@ -100,7 +100,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
       value: monthly?.co2 != null ? formatNumber(monthly.co2, 2) : null,
       unit: 'kg CO₂',
       subtitle: `${formatNumber(monthly?.kwh ?? 0, 3)} kWh ${t('thisMonth')}`,
-      color: 'text-sky-400',
+      color: 'text-sky-600 dark:text-sky-400',
       glow:  'rgba(56,189,248,0.2)',
     },
     {
@@ -110,7 +110,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
       value: lifetime?.co2 != null ? formatNumber(lifetime.co2, 2) : null,
       unit: 'kg CO₂',
       subtitle: `${formatNumber(lifetime?.kwh ?? 0, 3)} kWh ${t('total')}`,
-      color: 'text-violet-400',
+      color: 'text-violet-600 dark:text-violet-400',
       glow:  'rgba(167,139,250,0.2)',
     },
     {
@@ -120,22 +120,22 @@ const CarbonDashboardPage = ({ onNavigate }) => {
       value: trees?.monthly != null ? formatNumber(trees.monthly, 2) : null,
       unit: t('trees'),
       subtitle: t('perYearToOffset'),
-      color: 'text-lime-400',
+      color: 'text-lime-600 dark:text-lime-400',
       glow:  'rgba(163,230,53,0.2)',
     },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col">
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <header className="border-b border-white/8 bg-white/3 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Brand + back */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => onNavigate('dashboard')}
-              className="text-slate-400 hover:text-white border border-white/10 hover:border-white/20
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-white/10 hover:border-slate-500 dark:hover:border-white/20
                          rounded-lg px-3 py-2 text-xs transition-all duration-150 flex items-center gap-1.5"
             >
               ← {t('backToDashboard')}
@@ -143,7 +143,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
             <div className="flex items-center gap-2">
               <span className="text-xl">🌿</span>
               <div>
-                <h1 className="font-bold text-slate-100 leading-tight text-sm sm:text-base">
+                <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight text-sm sm:text-base">
                   {t('carbonDashboardTitle')}
                 </h1>
                 <p className="text-slate-500 text-[10px] hidden sm:block">{t('carbonDashboardSub')}</p>
@@ -164,7 +164,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
               <span className="text-xs text-emerald-400 font-medium">{t('live')}</span>
             </div>
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-xs font-semibold text-slate-200">{user.student_name}</span>
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{user.student_name}</span>
               <span className="text-[10px] text-slate-500">{t('room')} {user.room_number}</span>
             </div>
           </div>
@@ -176,7 +176,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
 
         {/* Error Banner */}
         {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-300 flex items-center gap-3">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-600 dark:text-red-300 flex items-center gap-3">
             <span>⚠️</span>
             <span>{error}</span>
             <button onClick={() => fetchAll()} className="ml-auto underline hover:no-underline text-xs">
@@ -187,12 +187,12 @@ const CarbonDashboardPage = ({ onNavigate }) => {
 
         {/* Page title */}
         <div className="animate-fade-in">
-          <p className="text-slate-400 text-sm">{t('welcomeBack')} {user.student_name}</p>
-          <h2 className="text-3xl font-bold text-slate-100 flex items-center gap-3 mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{t('welcomeBack')} {user.student_name}</p>
+          <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3 mt-1">
             <span>🌿</span> {t('carbonDashboardTitle')}
           </h2>
           <p className="text-slate-500 text-sm mt-1">
-            {t('emissionFactor')}: <span className="font-mono text-emerald-400">
+            {t('emissionFactor')}: <span className="font-mono text-emerald-600 dark:text-emerald-400">
               {formatNumber(profile?.emissionFactor ?? 0.67, 2)} kg CO₂/kWh
             </span>
             &nbsp;·&nbsp; {t('bangladeshGrid')}
@@ -246,7 +246,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
           style={{ boxShadow: '0 0 24px rgba(139,92,246,0.08), 0 4px 16px rgba(0,0,0,0.4)' }}
         >
           <div className="mb-5">
-            <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               <span>🤖</span> {t('aiInsightsTitle')}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">{t('aiInsightsSub')}</p>
@@ -276,7 +276,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
                     🌿
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-slate-200 text-sm leading-relaxed">{ins.insight}</p>
+                    <p className="text-slate-700 dark:text-slate-200 text-sm leading-relaxed">{ins.insight}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
                       <span className="text-[10px] text-slate-500">
                         {formatDate(ins.date)}
@@ -316,7 +316,7 @@ const CarbonDashboardPage = ({ onNavigate }) => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-4 text-center text-xs text-slate-600">
+      <footer className="border-t border-slate-200 dark:border-white/5 py-4 text-center text-xs text-slate-500 dark:text-slate-600">
         {t('hostelElectricityMonitor')} &nbsp;·&nbsp; {t('carbonFootprint')} &nbsp;·&nbsp; Powered by Gemini AI
       </footer>
     </div>

@@ -40,8 +40,8 @@ const SustainabilityScore = ({ score, label, tier, loading = false }) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex items-center justify-center h-52 animate-pulse">
-        <div className="w-32 h-32 rounded-full bg-white/10" />
+      <div className="rounded-2xl glass-card p-6 flex items-center justify-center h-52 animate-pulse">
+        <div className="w-32 h-32 rounded-full bg-slate-200 dark:bg-white/10" />
       </div>
     );
   }
@@ -63,20 +63,20 @@ const SustainabilityScore = ({ score, label, tier, loading = false }) => {
       }}
     >
       <div>
-        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2 justify-center">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2 justify-center">
           <span>{cfg.emoji}</span> {t('sustainabilityScore')}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5 text-center">{t('scoreSub')}</p>
       </div>
 
       {/* SVG Gauge */}
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center w-40 h-40">
         <svg width={160} height={160} viewBox="0 0 160 160" className="-rotate-90">
           {/* Track */}
           <circle
             cx={80} cy={80} r={RADIUS}
             fill="none"
-            stroke="rgba(255,255,255,0.06)"
+            className="stroke-slate-200 dark:stroke-slate-800"
             strokeWidth={12}
           />
           {/* Progress arc */}
@@ -94,11 +94,11 @@ const SustainabilityScore = ({ score, label, tier, loading = false }) => {
         </svg>
 
         {/* Center text */}
-        <div className="absolute flex flex-col items-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-4xl font-black font-mono" style={{ color: cfg.color }}>
             {formatNumber(safeScore)}
           </span>
-          <span className="text-xs text-slate-400">{t('outOf100')}</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400">{t('outOf100')}</span>
         </div>
       </div>
 

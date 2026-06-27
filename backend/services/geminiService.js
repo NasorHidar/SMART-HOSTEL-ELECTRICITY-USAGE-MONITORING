@@ -147,6 +147,13 @@ const runAnomalyDetection = async () => {
         });
 
         console.log(`[Gemini] 🚨 ALERT created for ${esp_id}: ${alert.message}`);
+
+        try {
+          const { sendAlert } = require('./socketService');
+          sendAlert(esp_id, alert);
+        } catch (socketErr) {
+          console.error('[Gemini] Failed to send real-time alert via socket:', socketErr.message);
+        }
       } else {
         console.log(`[Gemini] ${esp_id}: No anomaly detected (avgPower=${avgPower.toFixed(1)}W).`);
       }

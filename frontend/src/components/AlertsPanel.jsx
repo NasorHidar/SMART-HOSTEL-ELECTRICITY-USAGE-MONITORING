@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { acknowledgeAlert } from '../api/api';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -47,13 +47,13 @@ const AlertItem = ({ alert, onAcknowledge }) => {
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className={cfg.badge}>{t(cfg.labelKey)}</span>
           {alert.avg_power != null && (
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
               {t('avgPower', { power: formatNumber(alert.avg_power, 0) })}
             </span>
           )}
         </div>
 
-        <p className="text-sm text-slate-200 leading-relaxed">{alert.message}</p>
+        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{alert.message}</p>
 
         <p className="text-xs text-slate-500 mt-1.5">
           {alert.createdAt ? formatDate(alert.createdAt) : t('unknownTime')}
@@ -64,7 +64,7 @@ const AlertItem = ({ alert, onAcknowledge }) => {
         id={`ack-btn-${alert._id}`}
         onClick={handleAck}
         disabled={acking}
-        className="text-xs text-slate-400 hover:text-slate-200 border border-surface-border
+        className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-600
                    hover:border-slate-500 rounded-lg px-3 py-1.5 transition-colors duration-150
                    shrink-0 disabled:opacity-50"
       >
@@ -98,7 +98,7 @@ const AlertsPanel = ({ alerts = [], onRefresh }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-slate-100">{t('aiAnomalyAlerts')}</h3>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{t('aiAnomalyAlerts')}</h3>
           {localAlerts.length > 0 && (
             <span className="h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
               {formatNumber(localAlerts.length)}
@@ -112,7 +112,7 @@ const AlertsPanel = ({ alerts = [], onRefresh }) => {
       {localAlerts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 gap-3">
           <div className="text-5xl">✅</div>
-          <p className="text-slate-400 font-medium">{t('noActiveAlerts')}</p>
+          <p className="text-slate-600 dark:text-slate-400 font-medium">{t('noActiveAlerts')}</p>
           <p className="text-slate-500 text-sm text-center max-w-xs">
             {t('monitoringDescription')}
           </p>
@@ -132,4 +132,4 @@ const AlertsPanel = ({ alerts = [], onRefresh }) => {
   );
 };
 
-export default AlertsPanel;
+export default memo(AlertsPanel);

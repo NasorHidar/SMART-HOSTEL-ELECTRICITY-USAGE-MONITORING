@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   AreaChart,
   Area,
@@ -9,6 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 const CustomTooltip = ({ active, payload, t, formatNumber, language }) => {
   if (!active || !payload?.length) return null;
@@ -33,12 +35,12 @@ const CustomTooltip = ({ active, payload, t, formatNumber, language }) => {
 
   return (
     <div className="glass-card px-4 py-3 text-sm border-brand-600/40">
-      <p className="text-slate-400 mb-1">{timeStr}</p>
-      <p className="text-brand-400 font-semibold font-mono">
+      <p className="text-slate-600 dark:text-slate-400 mb-1">{timeStr}</p>
+      <p className="text-brand-600 dark:text-brand-400 font-semibold font-mono">
         {formatNumber(payload[0]?.value, 1)} W
       </p>
       {payload[1] && (
-        <p className="text-sky-400 font-mono text-xs">
+        <p className="text-sky-600 dark:text-sky-400 font-mono text-xs">
           {formatNumber(payload[1].value, 1)} V
         </p>
       )}
@@ -48,13 +50,18 @@ const CustomTooltip = ({ active, payload, t, formatNumber, language }) => {
 
 const PowerChart = ({ data = [] }) => {
   const { language, t, formatNumber } = useLanguage();
+  const { isDark } = useTheme();
+
+  // Theme-aware chart colors
+  const gridColor = isDark ? '#334155' : '#e2e8f0';
+  const tickColor = isDark ? '#94a3b8' : '#64748b';
 
   if (!data.length) {
     return (
       <div className="glass-card p-8 flex items-center justify-center h-64">
         <div className="text-center">
           <div className="text-4xl mb-3">📊</div>
-          <p className="text-slate-400">{t('noChartData')}</p>
+          <p className="text-slate-500 dark:text-slate-400">{t('noChartData')}</p>
           <p className="text-slate-500 text-sm">{t('readingsAppearSoon')}</p>
         </div>
       </div>
@@ -84,10 +91,10 @@ const PowerChart = ({ data = [] }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-100">{t('powerConsumption')}</h3>
-          <p className="text-slate-400 text-sm">{t('last24HoursAverage')}</p>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{t('powerConsumption')}</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{t('last24HoursAverage')}</p>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-400">
+        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-6 rounded-full bg-brand-500 inline-block" />
             {t('chartLegendPower')}
@@ -112,19 +119,19 @@ const PowerChart = ({ data = [] }) => {
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} strokeOpacity={0.5} />
 
           <XAxis
             dataKey="timeLabel"
-            tick={{ fill: '#94a3b8', fontSize: 11 }}
-            axisLine={{ stroke: '#334155' }}
+            tick={{ fill: tickColor, fontSize: 11 }}
+            axisLine={{ stroke: gridColor }}
             tickLine={false}
           />
 
           <YAxis
             yAxisId="power"
-            tick={{ fill: '#94a3b8', fontSize: 11 }}
-            axisLine={{ stroke: '#334155' }}
+            tick={{ fill: tickColor, fontSize: 11 }}
+            axisLine={{ stroke: gridColor }}
             tickLine={false}
             domain={[0, Math.ceil(maxPower * 1.2)]}
             tickFormatter={(v) => `${formatNumber(v)}W`}
@@ -133,8 +140,8 @@ const PowerChart = ({ data = [] }) => {
           <YAxis
             yAxisId="voltage"
             orientation="right"
-            tick={{ fill: '#94a3b8', fontSize: 11 }}
-            axisLine={{ stroke: '#334155' }}
+            tick={{ fill: tickColor, fontSize: 11 }}
+            axisLine={{ stroke: gridColor }}
             tickLine={false}
             domain={[180, 260]}
             tickFormatter={(v) => `${formatNumber(v)}V`}
@@ -179,4 +186,4 @@ const PowerChart = ({ data = [] }) => {
   );
 };
 
-export default PowerChart;
+export default memo(PowerChart);

@@ -25,6 +25,12 @@ const UserSchema = new mongoose.Schema(
       required: [true, 'room_number is required'],
       trim: true,
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: 'student@example.com'
+    },
     // Optional: daily energy budget in kWh before alerts escalate
     daily_limit_kwh: {
       type: Number,

@@ -31,8 +31,8 @@ const LoginPage = () => {
       <div className="absolute top-6 right-6 z-50">
         <button
           onClick={toggleLanguage}
-          className="glass-card px-4 py-2.5 text-xs font-semibold text-slate-300 hover:text-white
-                     hover:border-slate-500 rounded-xl transition-all duration-150 flex items-center gap-2 border border-surface-border/50"
+          className="glass-card px-4 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white
+                     hover:border-slate-500 rounded-xl transition-all duration-150 flex items-center gap-2 border border-slate-300 dark:border-slate-600/50"
           style={{ boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2)' }}
         >
           <span>🌐</span>
@@ -65,8 +65,8 @@ const LoginPage = () => {
             ⚡
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-slate-100">{t('smartMeter')}</h1>
-            <p className="text-slate-400 text-sm mt-1">{t('hostelElectricityMonitor')}</p>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('smartMeter')}</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('hostelElectricityMonitor')}</p>
           </div>
         </div>
 
@@ -74,7 +74,7 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Device ID Field */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="esp-id-input" className="text-sm font-medium text-slate-300">
+            <label htmlFor="esp-id-input" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t('deviceId')}
             </label>
             <input
@@ -95,7 +95,7 @@ const LoginPage = () => {
 
           {/* Password Field */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="password-input" className="text-sm font-medium text-slate-300">
+            <label htmlFor="password-input" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t('password')}
             </label>
             <div className="relative">
@@ -112,7 +112,7 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-sm"
                 tabIndex={-1}
               >
                 {showPw ? '🙈' : '👁️'}
@@ -122,7 +122,7 @@ const LoginPage = () => {
 
           {/* Error message */}
           {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {displayError}
             </div>
           )}

@@ -33,6 +33,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const carbonRoutes  = require('./routes/carbonRoutes');
 const { startAnomalyDetectionCron } = require('./services/geminiService');
 const { startSustainabilityInsightCron } = require('./services/sustainabilityInsightService');
+const { startDailyReportCron } = require('./services/cronService');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
 connectDB();
@@ -97,8 +98,16 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
+const http = require('http');
+const { initSocket } = require('./services/socketService');
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`\n🚀 Smart Meter API running on http://localhost:${PORT}`);
   console.log(`   Environment : ${process.env.NODE_ENV}`);
   console.log(`   MongoDB     : ${process.env.MONGO_URI}\n`);
@@ -108,6 +117,9 @@ app.listen(PORT, () => {
 
   // Start daily sustainability insight cron (every day at 23:55)
   startSustainabilityInsightCron();
+
+  // Start daily PDF report email cron (every day at midnight)
+  startDailyReportCron();
 });
 
-module.exports = app;
+module.exports = server;

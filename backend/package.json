@@ -17,6 +17,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.4",
     "node-cron": "^3.0.3",
+    "nodemailer": "^9.0.1",
+    "pdfkit": "^0.19.1",
+    "socket.io": "^4.8.3",
     "sslcommerz-lts": "^1.2.0",
     "uuid": "^14.0.1"
   },

@@ -22,7 +22,7 @@ const EquivCard = ({ icon, value, unit, description, color, bg }) => (
     <span className="text-2xl">{icon}</span>
     <div>
       <span className="text-xl font-bold font-mono" style={{ color }}>{value}</span>
-      <span className="text-sm text-slate-400 ml-1.5">{unit}</span>
+      <span className="text-sm text-slate-600 dark:text-slate-400 ml-1.5">{unit}</span>
     </div>
     <p className="text-[11px] text-slate-500 leading-snug">{description}</p>
   </div>
@@ -33,11 +33,11 @@ const EnvironmentalEquivalents = ({ equivalents, loading = false }) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-        <div className="h-4 w-56 bg-white/10 rounded mb-4 animate-pulse" />
+      <div className="rounded-2xl glass-card p-6">
+        <div className="h-4 w-56 bg-slate-200 dark:bg-white/10 rounded mb-4 animate-pulse" />
         <div className="grid grid-cols-2 gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 rounded-xl bg-white/5 animate-pulse" />
+            <div key={i} className="h-28 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
           ))}
         </div>
       </div>
@@ -81,11 +81,11 @@ const EnvironmentalEquivalents = ({ equivalents, loading = false }) => {
 
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6"
+      className="rounded-2xl glass-card p-6"
       style={{ boxShadow: '0 0 20px rgba(249,115,22,0.04), 0 4px 16px rgba(0,0,0,0.4)' }}
     >
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <span>🌍</span> {t('environmentalEquivalents')}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">{t('equivalentsSub')}</p>

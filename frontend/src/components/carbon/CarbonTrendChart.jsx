@@ -16,8 +16,8 @@ import { useLanguage } from '../../context/LanguageContext';
 const CustomTooltip = ({ active, payload, label, language }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/90 backdrop-blur-sm px-4 py-3 shadow-xl text-sm">
-      <p className="text-slate-400 text-xs mb-2">{label}</p>
+    <div className="glass-card px-4 py-3 text-sm border-brand-500/20">
+      <p className="text-slate-600 dark:text-slate-400 text-xs mb-2">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} className="font-mono font-semibold" style={{ color: p.color }}>
           {p.name}: {parseFloat(p.value).toFixed(3)} {p.unit}
@@ -55,27 +55,27 @@ const CarbonTrendChart = ({ data = [], loading = false }) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 h-72 animate-pulse">
-        <div className="h-4 w-48 bg-white/10 rounded mb-4" />
-        <div className="h-full bg-white/5 rounded-xl" />
+      <div className="rounded-2xl glass-card p-6 h-72 animate-pulse">
+        <div className="h-4 w-48 bg-slate-200 dark:bg-white/10 rounded mb-4" />
+        <div className="h-full bg-slate-100 dark:bg-white/5 rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6"
+    <div className="rounded-2xl glass-card p-6"
          style={{ boxShadow: '0 0 30px rgba(52,211,153,0.06), 0 4px 24px rgba(0,0,0,0.4)' }}>
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
             <span>📈</span> {t('carbonTrendTitle')}
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">{t('last30Days')}</p>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex rounded-xl border border-white/10 bg-slate-800/60 p-1 gap-1">
+        <div className="flex rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-800/60 p-1 gap-1">
           {tabs.map((tb) => (
             <button
               key={tb.key}
@@ -83,7 +83,7 @@ const CarbonTrendChart = ({ data = [], loading = false }) => {
               className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-150
                 ${activeTab === tb.key
                   ? 'bg-emerald-500/30 text-emerald-300 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'}`}
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
             >
               {tb.label}
             </button>

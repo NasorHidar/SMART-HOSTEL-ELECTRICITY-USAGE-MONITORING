@@ -30,11 +30,11 @@ const CarbonLeaderboard = ({ leaderboard = [], currentEspId, loading = false }) 
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-        <div className="h-4 w-44 bg-white/10 rounded mb-4 animate-pulse" />
+      <div className="rounded-2xl glass-card p-6">
+        <div className="h-4 w-44 bg-slate-200 dark:bg-white/10 rounded mb-4 animate-pulse" />
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 rounded-xl bg-white/5 animate-pulse" />
+            <div key={i} className="h-12 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
           ))}
         </div>
       </div>
@@ -43,12 +43,12 @@ const CarbonLeaderboard = ({ leaderboard = [], currentEspId, loading = false }) 
 
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6"
+      className="rounded-2xl glass-card p-6"
       style={{ boxShadow: '0 0 24px rgba(251,191,36,0.05), 0 4px 16px rgba(0,0,0,0.4)' }}
     >
       {/* Header */}
       <div className="mb-5">
-        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <span>🏆</span> {t('leaderboardTitle')}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">{t('leaderboardSub')}</p>
@@ -92,7 +92,7 @@ const CarbonLeaderboard = ({ leaderboard = [], currentEspId, loading = false }) 
 
                   {/* Room */}
                   <div className="min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isMe ? 'text-emerald-300' : 'text-slate-200'}`}>
+                    <p className={`text-sm font-semibold truncate ${isMe ? 'text-emerald-300' : 'text-slate-700 dark:text-slate-200'}`}>
                       {t('room')} {formatNumber(entry.room_number)}
                       {isMe && <span className="ml-1.5 text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">{t('you')}</span>}
                     </p>
@@ -100,7 +100,7 @@ const CarbonLeaderboard = ({ leaderboard = [], currentEspId, loading = false }) 
                   </div>
 
                   {/* kWh */}
-                  <p className="text-right text-xs font-mono text-slate-300">
+                  <p className="text-right text-xs font-mono text-slate-600 dark:text-slate-300">
                     {formatNumber(entry.monthlyKWh, 2)}
                   </p>
 

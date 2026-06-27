@@ -11,6 +11,61 @@ import { useAuth }     from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getCurrentBill, createPayment } from '../api/paymentApi';
 
+const PaymentMethodLogo = ({ id, label }) => {
+  switch (id) {
+    case 'VISA':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="50%" y="65%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="900" fontSize="22" fontStyle="italic">VISA</text>
+        </svg>
+      );
+    case 'MASTERCARD':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="42" cy="16" r="10" fill="#EB001B" opacity="0.9"/>
+          <circle cx="58" cy="16" r="10" fill="#F79E1B" opacity="0.9"/>
+        </svg>
+      );
+    case 'AMEX':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="4" fill="#016FD0"/>
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="bold" fontSize="13" letterSpacing="1">AMEX</text>
+        </svg>
+      );
+    case 'BKASH':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="6" fill="#E2136E" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="bold" fontSize="16">bKash</text>
+        </svg>
+      );
+    case 'NAGAD':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="6" fill="#F15A22" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="bold" fontSize="16">Nagad</text>
+        </svg>
+      );
+    case 'ROCKET':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="6" fill="#8C3494" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="bold" fontSize="15">Rocket</text>
+        </svg>
+      );
+    case 'UPAY':
+      return (
+        <svg className="h-8 w-auto drop-shadow-md" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="6" fill="#00ADEF" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="bold" fontSize="16">Upay</text>
+        </svg>
+      );
+    default:
+      return <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{label}</span>;
+  }
+};
+
 // ── Payment method definitions ────────────────────────────────────────────────
 const PAYMENT_METHODS = [
   {
@@ -119,9 +174,9 @@ const PaymentPage = ({ onNavigate }) => {
   // ── Status badge ─────────────────────────────────────────────────────────────
   const StatusBadge = ({ status }) => {
     const map = {
-      paid:     { bg: 'bg-brand-500/20 border-brand-500/40 text-brand-300', label: t('statusPaid'),    icon: '✅' },
-      unpaid:   { bg: 'bg-red-500/20 border-red-500/40 text-red-300',       label: t('statusUnpaid'),  icon: '⚠️' },
-      partial:  { bg: 'bg-amber-500/20 border-amber-500/40 text-amber-300', label: t('statusPartial'), icon: '🔸' },
+      paid:     { bg: 'bg-brand-500/20 border-brand-500/40 text-brand-600 dark:text-brand-300',    label: t('statusPaid'),    icon: '✅' },
+      unpaid:   { bg: 'bg-red-500/20 border-red-500/40 text-red-600 dark:text-red-300',       label: t('statusUnpaid'),  icon: '⚠️' },
+      partial:  { bg: 'bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300', label: t('statusPartial'), icon: '🔸' },
     };
     const cfg = map[status] || map.unpaid;
     return (
@@ -134,18 +189,18 @@ const PaymentPage = ({ onNavigate }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="border-b border-surface-border bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-surface-border bg-white/60 dark:bg-surface-card/60 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => onNavigate('dashboard')}
-              className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2"
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm flex items-center gap-2"
               id="back-to-dashboard-btn"
             >
               ← {t('backToDashboard')}
             </button>
           </div>
-          <h1 className="font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
             💳 {t('payBill')}
           </h1>
           <div className="w-24" />
@@ -169,10 +224,10 @@ const PaymentPage = ({ onNavigate }) => {
 
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 ⚡ {t('currentBill')}
               </h2>
-              <p className="text-slate-500 text-xs mt-0.5">
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                 {loading ? '...' : bill?.billingMonth} · {user.esp_id}
               </p>
             </div>
@@ -191,38 +246,38 @@ const PaymentPage = ({ onNavigate }) => {
               {/* Bill breakdown rows */}
               <div className="flex flex-col gap-2">
                 {/* Energy Charge */}
-                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-900/50 border border-surface-border">
-                  <span className="text-sm text-slate-400 flex items-center gap-2">
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                     ⚡ {t('energyCharge')}
-                    <span className="text-xs text-slate-600">
+                    <span className="text-xs text-slate-500">
                       ({formatNumber(bill.monthlyKWh, 3)} kWh)
                     </span>
                   </span>
-                  <span className="font-mono font-semibold text-sky-400">
+                  <span className="font-mono font-semibold text-sky-600 dark:text-sky-400">
                     ৳ {formatNumber(bill.energyCharge, 2)}
                   </span>
                 </div>
 
                 {/* Demand Charge */}
-                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-900/50 border border-surface-border">
-                  <span className="text-sm text-slate-400 flex items-center gap-2">
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                     📊 {t('demandCharge')}
-                    <span className="text-xs text-slate-600">({t('flatRate')})</span>
+                    <span className="text-xs text-slate-500">({t('flatRate')})</span>
                   </span>
-                  <span className="font-mono font-semibold text-amber-400">
+                  <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">
                     ৳ {formatNumber(bill.demandCharge, 2)}
                   </span>
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-surface-border my-1" />
+                <div className="border-t border-slate-200 dark:border-slate-700 my-1" />
 
                 {/* Total */}
                 <div className="flex items-center justify-between px-4 py-4 rounded-xl border border-brand-500/30 bg-brand-500/10">
-                  <span className="font-semibold text-slate-200 flex items-center gap-2">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
                     💰 {t('totalPayable')}
                   </span>
-                  <span className="font-mono font-bold text-2xl text-brand-400">
+                  <span className="font-mono font-bold text-2xl text-brand-600 dark:text-brand-400">
                     ৳ {formatNumber(bill.totalAmount, 2)}
                   </span>
                 </div>
@@ -246,8 +301,8 @@ const PaymentPage = ({ onNavigate }) => {
                 <div className="rounded-xl border border-brand-500/40 bg-brand-500/10 px-5 py-4 flex items-center gap-3">
                   <span className="text-2xl">✅</span>
                   <div>
-                    <p className="font-semibold text-brand-300">{t('billAlreadyPaid')}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{t('billAlreadyPaidSub')}</p>
+                    <p className="font-semibold text-brand-600 dark:text-brand-300">{t('billAlreadyPaid')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t('billAlreadyPaidSub')}</p>
                   </div>
                 </div>
               ) : (
@@ -263,7 +318,7 @@ const PaymentPage = ({ onNavigate }) => {
                         </div>
                       </div>
                     )}
-                    <h3 className="text-sm font-semibold text-slate-300 mb-3">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                       {t('selectPaymentMethod')}
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -280,12 +335,12 @@ const PaymentPage = ({ onNavigate }) => {
                             ${paying ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-lg'}
                             ${selectedMethod === method.id
                               ? `bg-gradient-to-br ${method.color} ${method.border} scale-[1.02] shadow-xl ring-1 ring-white/20`
-                              : 'border-surface-border bg-slate-900/40 hover:border-slate-500 hover:bg-slate-800/50'
+                              : 'border-slate-200 dark:border-surface-border bg-slate-50 dark:bg-slate-900/40 hover:border-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                             }
                           `}
                         >
-                          <img src={method.logo} alt={method.label} className="h-8 w-auto object-contain drop-shadow-md" />
-                          <span className={`text-xs font-semibold tracking-wide ${selectedMethod === method.id ? 'text-white' : 'text-slate-400'}`}>
+                          <PaymentMethodLogo id={method.id} label={method.label} />
+                          <span className={`text-xs font-semibold tracking-wide ${selectedMethod === method.id ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                             {method.label}
                           </span>
                           {selectedMethod === method.id && (

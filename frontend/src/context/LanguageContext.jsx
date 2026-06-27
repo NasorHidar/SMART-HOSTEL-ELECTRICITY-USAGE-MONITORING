@@ -213,6 +213,11 @@ const translations = {
     dailyCO2Short: 'Daily CO₂',
     viewCarbonDashboard: 'Carbon Footprint',
     retry: 'Retry',
+    carbonFootprintWidgetTitle: 'Carbon Footprint Calculator',
+    carbonFootprintWidgetSub: "Estimated impact of your room's electrical usage",
+    todaysFootprint: "Today's Footprint",
+    totalFootprint: 'Total Cumulative Footprint',
+    environmentalEquivalentTitle: 'Environmental Equivalent',
   },
   bn: {
     // Auth / Login
@@ -422,6 +427,11 @@ const translations = {
     dailyCO2Short: 'দৈনিক CO₂',
     viewCarbonDashboard: 'কার্বন নিঃসরণ',
     retry: 'পুনরায় চেষ্টা করুন',
+    carbonFootprintWidgetTitle: 'কার্বন ফুটপ্রিন্ট ক্যালকুলেটর',
+    carbonFootprintWidgetSub: 'আপনার রুমের বিদ্যুৎ ব্যবহারের আনুমানিক প্রভাব',
+    todaysFootprint: 'আজকের ফুটপ্রিন্ট',
+    totalFootprint: 'মোট সঞ্চিত ফুটপ্রিন্ট',
+    environmentalEquivalentTitle: 'পরিবেশগত সমতুল্য',
   }
 };
 

@@ -25,12 +25,12 @@ const DEMAND_CHARGE = 42.00;
 
 // ── LT-A Tariff Slabs ────────────────────────────────────────────────────────
 const LTA_SLABS = [
-  { limit:  75, rate: 5.26 },
-  { limit: 125, rate: 8.50 },
-  { limit: 100, rate: 9.10 },
-  { limit: 100, rate: 9.62 },
-  { limit: 200, rate: 15.01 },
-  { limit: Infinity, rate: 17.35 },
+  { upTo: 75, rate: 5.26 },   // 51‑75 units (after lifeline)
+  { upTo: 125, rate: 8.50 },  // 76‑125 units
+  { upTo: 225, rate: 9.10 },  // 126‑225 units
+  { upTo: 325, rate: 9.62 },  // 226‑325 units
+  { upTo: 525, rate: 15.01 }, // 326‑525 units
+  { upTo: Infinity, rate: 17.35 }, // 526+ units
 ];
 
 /**
@@ -44,19 +44,28 @@ const calculateEnergyCharge = (units) => {
   let total = 0;
   const breakdown = [];
 
+  // Lifeline slab (0–50 kWh)
   if (units <= 50) {
-    // Lifeline slab
     const cost = parseFloat((units * 4.63).toFixed(2));
     breakdown.push({ slabName: 'Lifeline (0–50)', units, rate: 4.63, cost });
     total = cost;
   } else {
-    // Progressive slabs
-    let remaining = units;
+    // Charge lifeline part first
+    const lifelineUnits = 50;
+    const lifelineCost = parseFloat((lifelineUnits * 4.63).toFixed(2));
+    breakdown.push({ slabName: 'Lifeline (0–50)', units: lifelineUnits, rate: 4.63, cost: lifelineCost });
+    total += lifelineCost;
+
+    // Remaining units to be billed progressively
+    let remaining = units - lifelineUnits;
     for (const slab of LTA_SLABS) {
       if (remaining <= 0) break;
-      const slabUnits = Math.min(remaining, slab.limit);
+      // Determine how many units fall into this slab based on its cumulative upper bound
+      const previousUpper = slab === LTA_SLABS[0] ? 50 : LTA_SLABS[LTA_SLABS.indexOf(slab) - 1].upTo;
+      const slabCapacity = slab.upTo - previousUpper;
+      const slabUnits = Math.min(remaining, slabCapacity);
       const cost = parseFloat((slabUnits * slab.rate).toFixed(2));
-      breakdown.push({ units: slabUnits, rate: slab.rate, cost });
+      breakdown.push({ slabName: `${previousUpper + 1}-${slab.upTo}`, units: slabUnits, rate: slab.rate, cost });
       total += cost;
       remaining -= slabUnits;
     }

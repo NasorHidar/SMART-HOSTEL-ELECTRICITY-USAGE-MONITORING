@@ -23,9 +23,9 @@ const TreesOffset = ({ treesNeeded, loading = false }) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 h-48 animate-pulse">
-        <div className="h-4 w-40 bg-white/10 rounded mb-4" />
-        <div className="h-16 bg-white/5 rounded" />
+      <div className="rounded-2xl glass-card p-6 h-48 animate-pulse">
+        <div className="h-4 w-40 bg-slate-200 dark:bg-white/10 rounded mb-4" />
+        <div className="h-16 bg-slate-100 dark:bg-white/5 rounded" />
       </div>
     );
   }
@@ -43,7 +43,7 @@ const TreesOffset = ({ treesNeeded, loading = false }) => {
       style={{ boxShadow: '0 0 30px rgba(34,197,94,0.08), 0 4px 16px rgba(0,0,0,0.4)' }}
     >
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <span>🌳</span> {t('treesNeededTitle')}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">{t('treesNeededSub')}</p>
@@ -55,7 +55,7 @@ const TreesOffset = ({ treesNeeded, loading = false }) => {
           <TreeIcon key={i} active={i < filledCount} />
         ))}
         {monthlyTrees > iconCount && (
-          <span className="text-slate-400 text-sm flex items-center ml-1">
+          <span className="text-slate-600 dark:text-slate-400 text-sm flex items-center ml-1">
             +{formatNumber(monthlyTrees - iconCount, 0)} {t('more')}
           </span>
         )}
@@ -64,14 +64,14 @@ const TreesOffset = ({ treesNeeded, loading = false }) => {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-emerald-500/10 rounded-xl p-3 border border-emerald-500/15">
-          <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">{t('treesMonthly')}</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">{t('treesMonthly')}</p>
           <p className="text-2xl font-bold font-mono text-emerald-400">
             {formatNumber(monthlyTrees, 2)}
           </p>
           <p className="text-[10px] text-slate-500">{t('treesUnit')}</p>
         </div>
         <div className="bg-teal-500/10 rounded-xl p-3 border border-teal-500/15">
-          <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">{t('treesLifetime')}</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">{t('treesLifetime')}</p>
           <p className="text-2xl font-bold font-mono text-teal-400">
             {formatNumber(lifetimeTrees, 2)}
           </p>
