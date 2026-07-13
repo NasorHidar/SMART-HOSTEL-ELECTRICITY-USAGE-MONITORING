@@ -1,3 +1,8 @@
+// ─── Load Environment Variables ────────────────────────────────────────────────
+// MUST be the very first statement so process.env is populated before any
+// module import or validation reads from it.
+require('dotenv').config();
+
 // ─── Environment Validation ───────────────────────────────────────────────────
 const requiredEnv = [
   'MONGO_URI',
@@ -20,14 +25,17 @@ if (missingEnv.length > 0) {
 const express = require('express');
 const cors    = require('cors');
 
+const http = require('http');
 const connectDB = require('./config/db');
-const authRoutes    = require('./routes/authRoutes');
-const readingRoutes = require('./routes/readingRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
-const carbonRoutes  = require('./routes/carbonRoutes');
-const { startAnomalyDetectionCron } = require('./services/geminiService');
+const authRoutes            = require('./routes/authRoutes');
+const readingRoutes         = require('./routes/readingRoutes');
+const paymentRoutes         = require('./routes/paymentRoutes');
+const carbonRoutes          = require('./routes/carbonRoutes');
+const usagePredictionRoutes = require('./routes/usagePredictionRoutes');
+const { initSocket }                  = require('./services/socketService');
+const { startAnomalyDetectionCron }   = require('./services/geminiService');
 const { startSustainabilityInsightCron } = require('./services/sustainabilityInsightService');
-const { startDailyReportCron } = require('./services/cronService');
+const { startDailyReportCron }        = require('./services/cronService');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
 connectDB();
@@ -77,6 +85,7 @@ app.use('/api', authRoutes);
 app.use('/api', readingRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', carbonRoutes);
+app.use('/api', usagePredictionRoutes);
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -92,16 +101,11 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-const http = require('http');
-const { initSocket } = require('./services/socketService');
-const usagePredictionRoutes = require('./routes/usagePredictionRoutes');
-
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 // Initialize Socket.io
 initSocket(server);
-app.use('/api', usagePredictionRoutes);
 
 server.listen(PORT, () => {
   console.log(`\n🚀 Smart Meter API running on http://localhost:${PORT}`);

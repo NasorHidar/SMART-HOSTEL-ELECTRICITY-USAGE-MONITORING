@@ -46,4 +46,13 @@ export const getDashboard = (esp_id) =>
 export const acknowledgeAlert = (alertId) =>
   api.patch(`/alerts/${alertId}/acknowledge`);
 
+// ─── Usage Predictions ─────────────────────────────────────────────────────────
+// POST version — original endpoint, body: { esp_id }
+export const getPredictions = (esp_id) =>
+  api.post('/predictions/predict-usage', { esp_id });
+
+// GET version — REST-friendly alias: /api/predictions/:esp_id
+export const getPredictionsGet = (esp_id) =>
+  api.get(`/predictions/${esp_id}`);
+
 export default api;

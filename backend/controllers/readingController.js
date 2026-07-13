@@ -49,14 +49,16 @@ const saveReading = async (req, res) => {
   }
 };
 
-// ─── GET /api/dashboard/:esp_id ───────────────────────────────────────────────
+// ─── GET /api/dashboard/:esp_id ──────────────────────────────────────────────────────────
 /**
  * Returns:
- *   latest   — the most recent Reading document
- *   daily    — today's total energy delta (kWh)
- *   chart    — hourly average power for the last 24 hours (for the chart)
- *   alerts   — last 10 unacknowledged AI alerts
- *   user     — student info (if registered)
+ *   latest      — the most recent Reading document
+ *   dailyKWh    — today's total energy delta (kWh)
+ *   weeklyKWh   — last 7 days' total energy delta (kWh)
+ *   monthlyKWh  — current calendar month's total energy delta (kWh)
+ *   chart       — hourly average power for the last 24 hours (for the chart)
+ *   alerts      — last 10 unacknowledged AI alerts
+ *   user        — student info (if registered)
  */
 const getDashboard = async (req, res) => {
   try {
@@ -107,49 +109,95 @@ const getDashboard = async (req, res) => {
       },
     ]);
 
-    // ── Daily energy total ────────────────────────────────────────────────────
+    // ── Daily energy total ───────────────────────────────────────────────────────────────
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    // Daily kWh = last energy reading today − first energy reading today
-    const [firstToday, lastToday] = await Promise.all([
-      Reading.findOne({ esp_id, timestamp: { $gte: startOfDay } })
-        .sort({ timestamp: 1 })
-        .lean(),
-      Reading.findOne({ esp_id, timestamp: { $gte: startOfDay } })
-        .sort({ timestamp: -1 })
-        .lean(),
+    const startOfWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    // Single aggregation computes daily, weekly and monthly deltas in one pass.
+    // Group by window using $facet so we avoid 6 separate findOne queries.
+    const [energyWindows] = await Reading.aggregate([
+      {
+        $match: {
+          esp_id,
+          timestamp: { $gte: startOfWeek }, // widest window
+        },
+      },
+      { $sort: { timestamp: 1 } },
+      {
+        $facet: {
+          daily: [
+            { $match: { timestamp: { $gte: startOfDay } } },
+            {
+              $group: {
+                _id: null,
+                first: { $first: '$energy' },
+                last:  { $last:  '$energy' },
+              },
+            },
+          ],
+          weekly: [
+            {
+              $group: {
+                _id: null,
+                first: { $first: '$energy' },
+                last:  { $last:  '$energy' },
+              },
+            },
+          ],
+          monthly: [
+            { $match: { timestamp: { $gte: startOfMonth } } },
+            {
+              $group: {
+                _id: null,
+                first: { $first: '$energy' },
+                last:  { $last:  '$energy' },
+              },
+            },
+          ],
+        },
+      },
     ]);
 
-    const dailyKWh =
-      firstToday && lastToday
-        ? Math.max(0, lastToday.energy - firstToday.energy)
+    const _delta = (bucket) =>
+      bucket && bucket.length > 0
+        ? Math.max(0, bucket[0].last - bucket[0].first)
         : 0;
 
+    const dailyKWh   = parseFloat(_delta(energyWindows?.daily).toFixed(4));
+    const weeklyKWh  = parseFloat(_delta(energyWindows?.weekly).toFixed(4));
+    const monthlyKWh = parseFloat(_delta(energyWindows?.monthly).toFixed(4));
+
     // Calculate server-side bill estimations
-    const dailyBill = calculateEnergyCharge(dailyKWh).energyCharge;
+    const dailyBill      = calculateEnergyCharge(dailyKWh).energyCharge;
     const cumulativeBill = calculateEnergyCharge(latest?.energy || 0).energyCharge;
 
-    // ── Alerts ────────────────────────────────────────────────────────────────
+    // ── Alerts ────────────────────────────────────────────────────────────────────────
     const alerts = await Alert.find({ esp_id, acknowledged: false })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
 
-    // ── User info ─────────────────────────────────────────────────────────────
+    // ── User info ───────────────────────────────────────────────────────────────────────
     const user = await User.findOne({ esp_id }).lean();
 
     res.status(200).json({
       latest,
-      dailyKWh: parseFloat(dailyKWh.toFixed(4)),
+      dailyKWh,
+      weeklyKWh,
+      monthlyKWh,
       dailyBill,
       cumulativeBill,
       chartData,
       alerts,
       user: user
         ? {
-            student_name: user.student_name,
-            room_number:  user.room_number,
+            student_name:    user.student_name,
+            room_number:     user.room_number,
             daily_limit_kwh: user.daily_limit_kwh,
           }
         : null,

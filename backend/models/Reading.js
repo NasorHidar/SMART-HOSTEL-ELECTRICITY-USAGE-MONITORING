@@ -59,4 +59,3 @@ ReadingSchema.index({ esp_id: 1, timestamp: -1 });
 
 module.exports = mongoose.model('Reading', ReadingSchema);
 
-(End of file - total 60 lines)

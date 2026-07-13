@@ -8,6 +8,7 @@ import PowerChart  from '../components/PowerChart';
 import AlertsPanel from '../components/AlertsPanel';
 import CarbonWidget from '../components/CarbonWidget';
 import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
+import UsagePredictionWidget from '../components/UsagePredictionWidget';
 import { io } from 'socket.io-client';
 
 // ─── Metric card definitions ──────────────────────────────────────────────────
@@ -455,6 +456,16 @@ const DashboardPage = ({ onNavigate }) => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Section: AI Usage Predictions */}
+        <div className="animate-fade-in">
+          <UsagePredictionWidget
+            esp_id={user.esp_id}
+            dailyKWh={data?.dailyKWh || 0}
+            weeklyKWh={data?.weeklyKWh || 0}
+            monthlyKWh={data?.monthlyKWh || 0}
+          />
         </div>
 
         {/* Carbon Footprint Widget */}

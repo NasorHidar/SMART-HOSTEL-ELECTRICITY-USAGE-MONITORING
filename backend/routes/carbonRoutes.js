@@ -17,16 +17,20 @@ const {
   getCarbonInsights,
 } = require('../controllers/carbonController');
 
-// GET /api/carbon/leaderboard — must be before /:esp_id
-router.get('/carbon/leaderboard', protect, getCarbonLeaderboard);
+// ⚠️  Order is critical: specific sub-paths must be registered BEFORE the
+// generic /:esp_id route, otherwise Express will match /:esp_id first and
+// treat "trends" / "insights" / "leaderboard" as an esp_id param value.
 
-// GET /api/carbon/:esp_id
-router.get('/carbon/:esp_id', protect, getCarbonProfile);
+// GET /api/carbon/leaderboard
+router.get('/carbon/leaderboard', protect, getCarbonLeaderboard);
 
 // GET /api/carbon/trends/:esp_id
 router.get('/carbon/trends/:esp_id', protect, getCarbonTrends);
 
 // GET /api/carbon/insights/:esp_id
 router.get('/carbon/insights/:esp_id', protect, getCarbonInsights);
+
+// GET /api/carbon/:esp_id — must come LAST among carbon routes
+router.get('/carbon/:esp_id', protect, getCarbonProfile);
 
 module.exports = router;
