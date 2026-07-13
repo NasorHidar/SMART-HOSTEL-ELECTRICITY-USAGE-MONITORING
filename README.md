@@ -18,18 +18,20 @@ A secure, production‑ready, full‑stack IoT application designed to **monitor
 | 7 | **Gemini AI Anomaly Detection** | Cron job (every 5 minutes) feeds telemetry windows to **Gemini 2.0 Flash** to detect prohibited high‑power appliances (electric kettles, heaters, etc.). |
 | 8 | **SSLCommerz Payment Gateway** | Full integration supporting VISA, MasterCard, AMEX, bKash, Nagad, Rocket, and Upay. Includes server‑to‑server transaction validation, payment history with search & pagination, and PDF receipt downloads. |
 | 9 | **MongoDB Time‑Series Optimization** | Uses MongoDB's native Time‑Series collections for efficient high‑frequency telemetry storage and aggregation. |
+| 10 | **🔥 Energy Usage Prediction** | Advanced daily and monthly KWh prediction algorithms using exponential moving averages and rolling averages for accurate energy consumption forecasting. |
 
 ### ✨ Advanced Features (Newly Implemented)
 | # | Feature | Description |
 |---|---------|-------------|
-| 10 | **🌙 Light / Dark Mode** | Global theme switching via `ThemeContext.jsx` with Tailwind CSS `dark:` class support. User preference is **persisted in localStorage** across sessions. |
-| 11 | **🌿 Carbon Footprint Dashboard** | Dedicated `CarbonDashboardPage` with real‑time CO₂ emission tracking (daily, weekly, monthly, lifetime), sustainability scoring, environmental equivalents (car km, tree offsets, smartphone charges), hostel leaderboard, and a 30‑day trend chart. Uses Bangladesh grid emission factor (0.67 kg CO₂/kWh). |
-| 12 | **🏦 Dynamic Banking & MFS Logos** | High‑fidelity SVG renderers in `PaymentPage.jsx` for bKash, Nagad, Rocket, Upay, VISA, MasterCard, and AMEX — no external image dependencies. |
-| 13 | **🔔 Real‑time Push Notifications** | **Socket.io** powered bi‑directional communication. When the Gemini AI detects an anomaly, an alert is pushed **instantly** to the user's dashboard — no polling required. Device‑scoped rooms ensure users only receive alerts for their own ESP32. |
-| 14 | **🔊 Critical Anomaly Audio Alerts** | When a high‑severity anomaly arrives via Socket.io, the dashboard plays an **audible warning tone** using the Web Audio API. Visual toast notifications accompany the sound. |
-| 15 | **🎙️ Voice Command Assistant** | `VoiceAssistant.jsx` — hands‑free dashboard navigation and data queries using the **Web Speech API**. Speak commands like "show my bill", "go to payments", or "what's my usage?" |
-| 16 | **📄 Daily Automated PDF Reports & Email Dispatch** | A `node‑cron` job (midnight daily) generates a personalized PDF electricity report per user via `pdfkit` and emails it via `nodemailer`. Supports real SMTP or Ethereal test accounts. |
-| 17 | **🤖 AI Sustainability Insights** | Daily cron (23:55) generates personalized energy‑saving recommendations per device using Gemini AI, stored in the `SustainabilityInsight` collection and surfaced on the Carbon Dashboard. |
+| 1 | **🌙 Light / Dark Mode** | Global theme switching via `ThemeContext.jsx` with Tailwind CSS `dark:` class support. User preference is **persisted in localStorage** across sessions. |
+| 2 | **🌿 Carbon Footprint Dashboard** | Dedicated `CarbonDashboardPage` with real‑time CO₂ emission tracking (daily, weekly, monthly, lifetime), sustainability scoring, environmental equivalents (car km, tree offsets, smartphone charges), hostel leaderboard, and a 30‑day trend chart. Uses Bangladesh grid emission factor (0.67 kg CO₂/kWh). |
+| 3 | **🏦 Dynamic Banking & MFS Logos** | High‑fidelity SVG renderers in `PaymentPage.jsx` for bKash, Nagad, Rocket, Upay, VISA, MasterCard, and AMEX — no external image dependencies. |
+| 4 | **🔔 Real‑time Push Notifications** | **Socket.io** powered bi‑directional communication. When the Gemini AI detects an anomaly, an alert is pushed **instantly** to the user's dashboard — no polling required. Device‑scoped rooms ensure users only receive alerts for their own ESP32. |
+| 5 | **🔊 Critical Anomaly Audio Alerts** | When a high‑severity anomaly arrives via Socket.io, the dashboard plays an **audible warning tone** using the Web Audio API. Visual toast notifications accompany the sound. |
+| 6 | **🎙️ Voice Command Assistant** | `VoiceAssistant.jsx` — hands‑free dashboard navigation and data queries using the **Web Speech API**. Speak commands like "show my bill", "go to payments", or "what's my usage?" |
+| 7 | **📄 Daily Automated PDF Reports & Email Dispatch** | A `node‑cron` job (midnight daily) generates a personalized PDF electricity report per user via `pdfkit` and emails it via `nodemailer`. Supports real SMTP or Ethereal test accounts. |
+| 8 | **🤖 AI Sustainability Insights** | Daily cron (23:55) generates personalized energy‑saving recommendations per device using Gemini AI, stored in the `SustainabilityInsight` collection and surfaced on the Carbon Dashboard. |
+| 9 | **🔥 Energy Usage Prediction** | Advanced daily/monthly usage prediction algorithms using weighted historical patterns and current behavior trends for accurate energy consumption forecasting. |
 
 ---
 
@@ -90,27 +92,29 @@ Smart-Meter/
 │   ├── middleware/
 │   │   └── authMiddleware.js                 # JWT verification & user loading
 │   ├── models/
-│   │   ├── Alert.js                          # AI‑detected anomaly schema
-│   │   ├── Payment.js                        # Billing transaction schema
-│   │   ├── Reading.js                        # Time‑Series telemetry schema
-│   │   ├── SustainabilityInsight.js          # Daily AI sustainability insight schema
-│   │   └── User.js                           # Resident schema with bcrypt pre‑save hooks
-│   ├── routes/
-│   │   ├── authRoutes.js                     # /api/login, /api/register, /api/dev/users
-│   │   ├── carbonRoutes.js                   # /api/carbon/* endpoints
-│   │   ├── paymentRoutes.js                  # /api/payments/* endpoints
-│   │   └── readingRoutes.js                  # /api/readings, /api/dashboard/*
-│   ├── services/
-│   │   ├── carbonService.js                  # CO₂ calculations, leaderboard, equivalents
-│   │   ├── cronService.js                    # Daily PDF report cron job (midnight)
-│   │   ├── emailService.js                   # Nodemailer email dispatch (SMTP/Ethereal)
-│   │   ├── geminiService.js                  # Gemini 2.0 Flash anomaly detection cron
-│   │   ├── paymentService.js                 # SSLCommerz gateway, LT‑A tariff calculator
-│   │   ├── pdfService.js                     # PDFKit report generation
-│   │   ├── socketService.js                  # Socket.io initialization & alert emitter
-│   │   └── sustainabilityInsightService.js   # Daily AI sustainability cron (23:55)
-│   ├── scripts/
-│   │   └── seed.js                           # Database seeder for demo data
+ │   │   ├── Alert.js                          # AI‑detected anomaly schema
+ │   │   ├── Payment.js                        # Billing transaction schema
+ │   │   ├── Reading.js                        # Time‑Series telemetry schema
+ │   │   ├── SustainabilityInsight.js          # Daily AI sustainability insight schema
+ │   │   └── User.js                           # Resident schema with bcrypt pre‑save hooks
+ │   ├── routes/
+ │   │   ├── authRoutes.js                     # /api/login, /api/register, /api/dev/users
+ │   │   ├── carbonRoutes.js                   # /api/carbon/* endpoints
+ │   │   ├── paymentRoutes.js                  # /api/payments/* endpoints
+ │   │   ├── readingRoutes.js                  # /api/readings, /api/dashboard/*
+ │   │   └── usagePredictionRoutes.js           # /api/predictions/predict‑usage
+ │   ├── services/
+ │   │   ├── carbonService.js                  # CO₂ calculations, leaderboard, equivalents
+ │   │   ├── cronService.js                    # Daily PDF report cron job (midnight)
+ │   │   ├── emailService.js                   # Nodemailer email dispatch (SMTP/Ethereal)
+ │   │   ├── geminiService.js                  # Gemini 2.0 Flash anomaly detection cron
+ │   │   ├── paymentService.js                 # SSLCommerz gateway, LT‑A tariff calculator
+ │   │   ├── pdfService.js                     # PDFKit report generation
+ │   │   ├── socketService.js                  # Socket.io initialization & alert emitter
+ │   │   ├── sustainabilityInsightService.js   # Daily AI sustainability cron (23:55)
+ │   │   └── usagePredictionService.js         # Daily/monthly usage prediction algorithms
+ │   ├── scripts/
+ │   │   └── seed.js                           # Database seeder for demo data
 │   ├── .env.example                          # Environment variable template
 │   ├── package.json
 │   └── server.js                             # Express entry point + Socket.io + cron init

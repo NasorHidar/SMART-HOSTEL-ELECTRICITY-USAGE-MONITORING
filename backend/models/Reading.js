@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 /**
  * models/Reading.js
  * Stores individual sensor readings from ESP32 devices.
@@ -8,8 +10,6 @@
  *       version, remove the `timeseries` option — the schema still works as
  *       a regular indexed collection.
  */
-
-const mongoose = require('mongoose');
 
 const ReadingSchema = new mongoose.Schema(
   {
@@ -58,3 +58,5 @@ const ReadingSchema = new mongoose.Schema(
 ReadingSchema.index({ esp_id: 1, timestamp: -1 });
 
 module.exports = mongoose.model('Reading', ReadingSchema);
+
+(End of file - total 60 lines)
