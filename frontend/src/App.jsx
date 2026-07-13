@@ -49,20 +49,28 @@ const App = () => {
   const urlParams = new URLSearchParams(window.location.search);
 
   // Authenticated page routing
-  switch (currentPage) {
-    case 'payment':
-      return <PaymentPage onNavigate={handleNavigate} />;
-    case 'history':
-      return <PaymentHistory onNavigate={handleNavigate} />;
-    case 'success':
-      return <PaymentSuccess onNavigate={handleNavigate} urlParams={urlParams} />;
-    case 'failed':
-      return <PaymentFailed onNavigate={handleNavigate} urlParams={urlParams} />;
-    case 'carbon':
-      return <CarbonDashboardPage onNavigate={handleNavigate} />;
-    default:
-      return <DashboardPage onNavigate={handleNavigate} />;
-  }
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'payment':
+        return <PaymentPage onNavigate={handleNavigate} />;
+      case 'history':
+        return <PaymentHistory onNavigate={handleNavigate} />;
+      case 'success':
+        return <PaymentSuccess onNavigate={handleNavigate} urlParams={urlParams} />;
+      case 'failed':
+        return <PaymentFailed onNavigate={handleNavigate} urlParams={urlParams} />;
+      case 'carbon':
+        return <CarbonDashboardPage onNavigate={handleNavigate} />;
+      default:
+        return <DashboardPage onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <>
+      {renderContent()}
+    </>
+  );
 };
 
 export default App;

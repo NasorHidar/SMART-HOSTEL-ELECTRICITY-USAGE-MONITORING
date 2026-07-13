@@ -7,7 +7,7 @@ import MetricCard  from '../components/MetricCard';
 import PowerChart  from '../components/PowerChart';
 import AlertsPanel from '../components/AlertsPanel';
 import CarbonWidget from '../components/CarbonWidget';
-import VoiceAssistant from '../components/VoiceAssistant';
+import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { io } from 'socket.io-client';
 
 // ─── Metric card definitions ──────────────────────────────────────────────────
@@ -189,8 +189,8 @@ const DashboardPage = ({ onNavigate }) => {
           <div className="flex items-center gap-3">
             <span className="text-2xl">⚡</span>
             <div>
-              <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight">{t('smartMeter')}</h1>
-              <p className="text-slate-500 text-xs hidden sm:block">{t('hostelElectricityMonitor')}</p>
+              <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight whitespace-nowrap">{t('smartMeter')}</h1>
+              <p className="text-slate-500 text-xs hidden sm:block truncate">{t('hostelElectricityMonitor')}</p>
             </div>
           </div>
 
@@ -226,9 +226,9 @@ const DashboardPage = ({ onNavigate }) => {
               <span>{isDark ? 'Light' : 'Dark'}</span>
             </button>
 
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.student_name}</span>
-              <span className="text-xs text-slate-500">{t('room')} {formatNumber(user.room_number)} · {user.esp_id}</span>
+            <div className="hidden sm:flex flex-col items-end shrink-0">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">{user.student_name}</span>
+              <span className="text-xs text-slate-500 whitespace-nowrap">{t('room')} {formatNumber(user.room_number)} · {user.esp_id}</span>
             </div>
 
             <button
@@ -236,10 +236,10 @@ const DashboardPage = ({ onNavigate }) => {
               onClick={() => onNavigate('carbon')}
               className="text-xs font-semibold text-white border border-emerald-500/50
                          bg-emerald-500/20 hover:bg-emerald-500/40
-                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5"
+                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5 shrink-0"
             >
               <span>🌿</span>
-              <span className="hidden sm:inline">{t('viewCarbonDashboard')}</span>
+              <span className="hidden sm:inline whitespace-nowrap">{t('viewCarbonDashboard')}</span>
             </button>
 
             <button
@@ -247,17 +247,17 @@ const DashboardPage = ({ onNavigate }) => {
               onClick={() => onNavigate('payment')}
               className="text-xs font-semibold text-white border border-brand-500/50
                          bg-brand-500/20 hover:bg-brand-500/40
-                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5"
+                         rounded-lg px-3 py-2 transition-all duration-150 flex items-center gap-1.5 shrink-0"
             >
               <span>💳</span>
-              <span>{t('payBill')}</span>
+              <span className="whitespace-nowrap">{t('payBill')}</span>
             </button>
 
             <button
               id="logout-btn"
               onClick={logout}
               className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-600
-                         hover:border-slate-500 rounded-lg px-3 py-2 transition-colors duration-150"
+                         hover:border-slate-500 rounded-lg px-3 py-2 transition-colors duration-150 shrink-0 whitespace-nowrap"
             >
               {t('signOut')}
             </button>
@@ -457,17 +457,19 @@ const DashboardPage = ({ onNavigate }) => {
           )}
         </div>
 
-        {/* Carbon Footprint & Voice Assistant Widgets */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+        {/* Carbon Footprint Widget */}
+        <div className="animate-fade-in">
           <CarbonWidget dailyKWh={data?.dailyKWh || 0} cumulativeKWh={latest?.energy || 0} />
-          <VoiceAssistant 
-            dailyKWh={data?.dailyKWh || 0} 
-            estimatedBill={estimatedTotalBill} 
-            dailyCost={dailyBillDetails.total}
-            onNavigate={onNavigate}
-            roomNumber={user.room_number}
-          />
         </div>
+
+        {/* Floating Voice Assistant */}
+        <VoiceAssistantWidget 
+          dailyKWh={data?.dailyKWh || 0} 
+          estimatedBill={estimatedTotalBill} 
+          dailyCost={dailyBillDetails.total}
+          onNavigate={onNavigate}
+          roomNumber={user.room_number}
+        />
 
         {/* Section: Chart */}
         <div className="animate-fade-in">

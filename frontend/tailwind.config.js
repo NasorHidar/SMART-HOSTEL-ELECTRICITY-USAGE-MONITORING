@@ -35,10 +35,20 @@ export default {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-in':    'fadeIn 0.5s ease-out',
         'slide-up':   'slideUp 0.4s ease-out',
+        'ripple':     'ripple 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        'soundwave':  'soundwave 0.5s ease-in-out infinite alternate',
       },
       keyframes: {
         fadeIn:  { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
         slideUp: { '0%': { opacity: 0, transform: 'translateY(16px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        ripple: {
+          '0%': { transform: 'scale(0.8)', opacity: 1 },
+          '100%': { transform: 'scale(2.5)', opacity: 0 },
+        },
+        soundwave: {
+          '0%': { transform: 'scaleY(0.3)' },
+          '100%': { transform: 'scaleY(1)' },
+        },
       },
     },
   },

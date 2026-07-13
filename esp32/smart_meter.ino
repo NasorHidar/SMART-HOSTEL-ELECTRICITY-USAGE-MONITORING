@@ -28,12 +28,12 @@
 //       prefs.begin("wifi", true);
 //       String ssid = prefs.getString("ssid", "");
 //       String pass = prefs.getString("pass", "");
-const char* WIFI_SSID     = "Tajuddin Guest Room";
-const char* WIFI_PASSWORD = "12345678";
+const char* WIFI_SSID     = "IIT-JU-LAB-03";
+const char* WIFI_PASSWORD = "iitju1239";
 
 // ─── Backend Server Configuration ─────────────────────────────────────────────
 // Use a hostname (e.g. "smart-hostel.local") or static IP for production
-const char* SERVER_IP     = "192.168.0.124";
+const char* SERVER_IP     = "192.168.68.134";
 const int   SERVER_PORT   = 5000;
 const char* ENDPOINT      = "/api/readings";
 
@@ -69,7 +69,7 @@ bool          screenToggle    = false;
 // ─── POST Throttling ──────────────────────────────────────────────────────────
 // Only send data to the server every POST_INTERVAL_MS milliseconds
 // LCD & sensor readings still update every ~2 seconds
-const unsigned long POST_INTERVAL_MS = 30000; // 30 seconds
+const unsigned long POST_INTERVAL_MS = 5000; // 5 seconds
 unsigned long       lastPostMillis   = 0;
 
 // ─── WiFi State (non-blocking reconnect) ──────────────────────────────────────
